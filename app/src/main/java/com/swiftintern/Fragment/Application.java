@@ -1,0 +1,349 @@
+package com.swiftintern.Fragment;
+
+import android.app.ProgressDialog;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.swiftintern.Helper.CardQualificationContent;
+import com.swiftintern.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.ConnectException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.List;
+
+public class Application extends Fragment {
+
+    public Application() {
+        // Required empty public constructor
+    }
+
+    View view;
+    CardQualificationContent cardsAppContent = new CardQualificationContent();
+    RVAdapter rvAdapter;
+    RecyclerView recyclerView;
+    SharedPreferences sharedPreferences;
+    TextView textView;
+    String token;
+    String oppID[], AppData[][];
+    int num;
+    ProgressDialog dialog;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        view = inflater.inflate(R.layout.fragment_application, container, false);
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+
+        sharedPreferences = getActivity().getSharedPreferences("UserInfo", getContext().MODE_PRIVATE);
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycle_app);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(linearLayoutManager);
+        textView = (TextView) view.findViewById(R.id.text_app_head);
+
+//        cardsAppContent.addItem(new CardQualificationContent.DummyItem("org", "cat", "loc", "sti", "sta"));
+        cardsAppContent.clear();
+        dialog = new ProgressDialog(getActivity());
+        dialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
+        dialog.setMessage("Fetching Applications");
+        dialog.show();
+
+        fill_cards_with_apps();
+
+        rvAdapter = new RVAdapter(cardsAppContent.ITEMS);
+        recyclerView.setAdapter(rvAdapter);
+
+        return view;
+    }
+
+
+    public class SearchApps extends AsyncTask<Void, Void, String > {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            String error=null;
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader bufferedReader = null;
+
+            String base = "http://swiftintern.com/students/applications.json";
+            URL url = null;
+            try {
+
+                url= new URL(base);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                token = sharedPreferences.getString("token", null);
+                Log.v("MyApp", getClass().toString() + " token " + token);
+                urlConnection.setRequestProperty("acess-token",token);
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+
+                StringBuffer buffer = new StringBuffer();
+                if(inputStream==null){
+                    return "null_inputstream";
+                }
+
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line ;
+
+                while ( (line=bufferedReader.readLine())!=null ){
+                    buffer.append(line + '\n');
+                }
+
+                if (buffer.length() == 0) {
+                    return "null_inputstream";
+                }
+
+                String stringJSON = buffer.toString();
+                return stringJSON;
+            } catch (UnknownHostException | ConnectException e) {
+                error = "null_internet" ;
+                e.printStackTrace();
+            } catch (IOException e) {
+                error= "null_file";
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (bufferedReader != null) {
+                    try {
+                        bufferedReader.close();
+                    } catch (final IOException e) {
+//                        Log.e(LOG_CAT, "ErrorClosingStream", e);
+                    }
+                }
+            }
+            return error;
+        }//doinbackground
+
+        @Override
+        protected void onPostExecute(String strJSON) {
+
+            if( strJSON=="null_inputstream" || strJSON=="null_file" ){
+                dialog.dismiss();
+                Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
+                return  ;
+            }
+
+            if ( strJSON=="null_internet" ){
+                dialog.dismiss();
+                Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
+                return ;
+            }
+//            Log.v("MyApp", getClass().toString() + "on app post : " + strJSON );
+
+            try {
+                JSONObject jsonObject = new JSONObject(strJSON);
+                JSONArray application = jsonObject.getJSONArray("applications");
+                num = application.length();
+                oppID = new String[num];
+                AppData = new String[num][5];
+                JSONObject apps;
+                for(int i=0 ; i<num ; i++ ){
+                    apps = application.getJSONObject(i);
+                    oppID[i] = apps.getString("_opportunity_id");
+                    AppData[i][1] = apps.getString("_status");
+                }
+                SearchOrganisation searchOrganisation = new SearchOrganisation();
+                searchOrganisation.execute();
+            } catch (JSONException e) {
+                dialog.dismiss();
+                textView.setText("No Applications");
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    public class SearchOrganisation extends AsyncTask<Void, Void, String > {
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            String error=null;
+            String stringJSON=null;
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader bufferedReader = null;
+
+            String base = "http://swiftintern.com/internship/opportunity";
+            String find;
+            URL url = null;
+            try {
+
+                for(int i=0;i<num;i++) {
+                    stringJSON = "false";
+                    find = oppID[i] + ".json";
+                    Uri uri = Uri.parse(base).buildUpon().appendPath(find).build();
+                    Log.v("MyApp", getClass().toString() + "Search Opportunity: " + uri.toString());
+                    url = new URL(uri.toString());
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
+
+                    InputStream inputStream = urlConnection.getInputStream();
+
+                    StringBuffer buffer = new StringBuffer();
+                    if (inputStream == null) {
+                        return "null_inputstream";
+                    }
+
+                    bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+
+                    while ((line = bufferedReader.readLine()) != null) {
+                        buffer.append(line + '\n');
+                    }
+
+                    if (buffer.length() == 0) {
+                        return "null_inputstream";
+                    }
+                    stringJSON = buffer.toString();
+                    JSONObject main = new JSONObject(stringJSON);
+                    JSONObject opportunity = main.getJSONObject("opportunity");
+                    JSONObject organization = main.getJSONObject("organization");
+                    AppData[i][0] = organization.getString("_name");
+                    AppData[i][2] = opportunity.getString("_category");
+                    AppData[i][3] = opportunity.getString("_location");
+                    AppData[i][4] = opportunity.getString("_payment");
+//                    Log.v(LOG_CAT,getClass().toString() + stringJSON );
+                    stringJSON="true";
+                }
+                return stringJSON;
+            } catch (UnknownHostException | ConnectException e) {
+                error = "null_internet" ;
+                e.printStackTrace();
+            } catch (IOException e) {
+                error= "null_file";
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (bufferedReader != null) {
+                    try {
+                        bufferedReader.close();
+                    } catch (final IOException e) {
+//                        Log.e(LOG_CAT, "ErrorClosingStream", e);
+                    }
+                }
+            }
+            return error;
+        }//doinbackground
+
+
+        @Override
+        protected void onPostExecute(String strJSON) {
+
+            if( strJSON=="null_inputstream" || strJSON=="null_file" ){
+                dialog.dismiss();
+                Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
+                return  ;
+            }
+
+            if ( strJSON=="null_internet" ){
+                dialog.dismiss();
+                Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
+                return ;
+            }
+
+            if( strJSON.equals("false") ){
+                dialog.dismiss();
+                Toast.makeText(getActivity(), "Unable to connect to SwiftIntern", Toast.LENGTH_SHORT).show();
+            }
+
+            for(int i =0 ; i<num ; i++ ){
+                Log.v("MyApp", getClass().toString() + Integer.toString(i) + "  " + AppData[i][0] + AppData[i][2] +
+                        AppData[i][3] + AppData[i][4] + AppData[i][1]);
+                cardsAppContent.addItem(new CardQualificationContent.DummyItem(AppData[i][0], AppData[i][2],
+                        AppData[i][3], AppData[i][4], AppData[i][1]));
+                rvAdapter = new RVAdapter(cardsAppContent.ITEMS);
+                recyclerView.setAdapter(rvAdapter);
+                dialog.dismiss();
+            }
+
+
+        }
+    }
+
+    public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
+        CardQualificationContent cardsApp = new CardQualificationContent();
+
+        public RVAdapter ( List<CardQualificationContent.DummyItem> list_cardsApp ){
+            cardsApp.ITEMS = list_cardsApp;
+        }
+
+        @Override
+        public RVAdapter.CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_for_applications, parent, false );
+            CardViewHolder cardViewHolder = new CardViewHolder( view );
+            return cardViewHolder;
+        }
+
+        @Override
+        public void onBindViewHolder(RVAdapter.CardViewHolder holder, int position) {
+
+            holder.Org.setText(cardsApp.ITEMS.get(position).organisation);
+            holder.Cat.setText(cardsApp.ITEMS.get(position).category);
+            holder.Loc.setText(cardsApp.ITEMS.get(position).location);
+            holder.Sta.setText(cardsApp.ITEMS.get(position).status);
+            holder.Sti.setText(cardsApp.ITEMS.get(position).stipend);
+        }
+
+        @Override
+        public int getItemCount() {
+            return cardsApp.ITEMS.size();
+        }
+
+        public class CardViewHolder extends RecyclerView.ViewHolder {
+            CardView cardView;
+            TextView Org, Cat, Loc, Sti, Sta;
+            public CardViewHolder(View itemView) {
+                super(itemView);
+                cardView = (CardView) itemView.findViewById(R.id.cards_view_app);
+                Org = (TextView) itemView.findViewById(R.id.text_card_app_org);
+                Sta = (TextView) itemView.findViewById(R.id.text_card_app_sta);
+                Loc = (TextView) itemView.findViewById(R.id.text_app_Loc_name);
+                Sti = (TextView) itemView.findViewById(R.id.text_app_sti_name);
+                Cat = (TextView) itemView.findViewById(R.id.text__app_cat_name);
+            }
+        }
+    }
+    private void fill_cards_with_apps(){
+        SearchApps searchApps = new SearchApps();
+        searchApps.execute();
+    }
+}

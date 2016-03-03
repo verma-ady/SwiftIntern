@@ -1,0 +1,204 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.swiftintern.Fragment.WorkDetails"
+    android:background="#ffffff">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/profile_userdata_layout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/linearlayout_userdata_header"
+            android:background="#E0E0E0"
+            >
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textheader_userdata_name"
+                    android:text="Enter Your Work Details"
+                    android:textSize="25sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="15dp" />
+
+            </RelativeLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@android:color/darker_gray"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/scrollView">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/relative__userdata_qualification">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/text_userdata_personal"
+                        android:text="Work Details"
+                        android:textColor="#6D4C41"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginTop="6dp"
+                        android:textSize="15sp"/>
+
+                    <View
+                        android:layout_width="67dp"
+                        android:layout_height="1dp"
+                        android:layout_marginLeft="3dp"
+                        android:layout_below="@id/text_userdata_personal"
+                        android:background="@android:color/darker_gray"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/linear_userdata_company"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/text_userdata_personal">
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userdata_company"
+                            android:text="Company"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginTop="5dp"
+                            android:textSize="20sp" />
+
+                        <AutoCompleteTextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userdata_company_name"
+                            android:textSize="20sp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginRight="5dp"
+                            android:hint="Enter Company"
+                            android:imeOptions="actionNext"
+                            android:inputType="text"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/linear_userdata_duration"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/linear_userdata_company">
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userdata_duration"
+                            android:text="Duration"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginTop="5dp"
+                            android:textSize="20sp"/>
+
+                        <EditText
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userdata_duration_name"
+                            android:textSize="20sp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginRight="5dp"
+                            android:hint="Enter Duration"
+                            android:imeOptions="actionNext"
+                            android:inputType="number"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/linear_userdata_designation"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/linear_userdata_duration">
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userdata_designation"
+                            android:text="Designation"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginTop="5dp"
+                            android:textSize="20sp"/>
+
+                        <EditText
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userdata_designation_name"
+                            android:textSize="20sp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginRight="5dp"
+                            android:hint="Enter Designation"
+                            android:imeOptions="actionNext"
+                            android:inputType="text"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/linear_userdata_responsibility"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/linear_userdata_designation">
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userdata_responsibilit"
+                            android:text="Responsibility"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginTop="5dp"
+                            android:textSize="20sp"/>
+
+                        <EditText
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userdata_responsibilit_name"
+                            android:textSize="20sp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginRight="5dp"
+                            android:hint="Enter Responsibilty"
+                            android:imeOptions="actionSend"
+                            android:inputType="text"/>
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Submit"
+                    android:id="@+id/button_submit_userdata"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    android:layout_below="@id/relative__userdata_qualification"
+                    android:theme="@style/ThemeOverlay.MyDarkButton" />
+            </RelativeLayout>
+
+        </ScrollView>
+    </LinearLayout>
+
+</FrameLayout>

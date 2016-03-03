@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <include
+        layout="@layout/toolbar" />
+
+    <android.support.percent.PercentRelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_heightPercent="70%"
+            android:id="@+id/linear_signin"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/google_icon"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:contentDescription="SwiftIntern Logo"
+                android:src="@drawable/icon_swift_intern" />
+
+            <TextView
+                android:id="@+id/title_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="SwiftIntern"
+                android:gravity="center"
+                android:textColor="#000000"
+                android:textSize="36sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/linear_button"
+            android:layout_below="@id/linear_signin"
+            app:layout_marginBottomPercent="10%"
+            android:orientation="horizontal"
+            android:gravity="center_vertical|center_horizontal">
+
+            <Button
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/button_login_gplus"
+                android:text="Google+"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:paddingLeft="10dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginEnd="15dp"
+                android:paddingStart="10dp"
+                android:paddingRight="10dp"
+                android:paddingEnd="10dp"
+                android:background="#CA4738"
+                android:layout_marginBottom="5dp"
+                android:textAllCaps="false"/>
+
+            <Button
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/button_login_fb"
+                android:text="Facebook"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:paddingLeft="10dp"
+                android:paddingStart="10dp"
+                android:paddingRight="10dp"
+                android:paddingEnd="10dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginStart="15dp"
+                android:background="#415DAE"
+                android:layout_marginBottom="5dp"
+                android:textAllCaps="false"/>
+
+        </LinearLayout>
+
+    </android.support.percent.PercentRelativeLayout>
+</LinearLayout>

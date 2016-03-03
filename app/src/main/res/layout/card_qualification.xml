@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
+    android:background="#E0E0E0">
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/recycle_quali"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:elevation="10dp"
+        />
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/cards_view_quali"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="7dp"
+        card_view:cardUseCompatPadding="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:foreground="?attr/selectableItemBackground"
+        android:elevation="30dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:contentDescription="false">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ffffff"
+            android:paddingLeft="4dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:paddingRight="4dp"
+            android:elevation="40dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/text_card_quali_university"
+                android:textSize="25sp"
+                android:textColor="#6D4C41"
+                android:paddingLeft="10dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="3dp"
+                android:paddingRight="5dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/text_card_quali_degree"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:paddingLeft="10dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="2dp"
+                android:paddingRight="5dp"
+                android:layout_below="@id/text_card_quali_university"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linear_quali_major"
+                android:orientation="horizontal"
+                android:layout_below="@id/text_card_quali_degree"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="2dp"
+                android:elevation="3dp"
+                android:layout_marginLeft="5dp">
+                <TextView
+                    android:layout_width="130dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_quali_major"
+                    android:text="Major : "
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="2dp"
+                    android:textSize="17sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_quali_major_name"
+                    android:textSize="20sp"
+                    android:layout_marginTop="2dp"
+                    android:textColor="#6D4C41"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linear_quali_gpa"
+                android:orientation="horizontal"
+                android:layout_below="@+id/linear_quali_major"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="2dp"
+                android:elevation="3dp"
+                android:layout_marginLeft="5dp">
+                <TextView
+                    android:layout_width="130dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_quali_gpa"
+                    android:text="Percentage : "
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="2dp"
+                    android:textSize="17sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_quali_gpa_name"
+                    android:textSize="20sp"
+                    android:layout_marginTop="2dp"
+                    android:text=""
+                    android:textColor="#6D4C41"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linear_quali_year"
+                android:orientation="horizontal"
+                android:layout_below="@+id/linear_quali_gpa"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="2dp"
+                android:elevation="3dp"
+                android:layout_marginLeft="5dp">
+                <TextView
+                    android:layout_width="130dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_quali_year"
+                    android:text="Passing Year : "
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="2dp"
+                    android:textSize="17sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text__quali_year_name"
+                    android:textSize="20sp"
+                    android:layout_marginTop="2dp"
+                    android:text=""
+                    android:textColor="#6D4C41"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+
+</LinearLayout>

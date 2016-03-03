@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">SwiftIntern</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="title_activity_login">login</string>
+    <string name="title_activity_get_user_data">GetUserData</string>
+    <string name="fb_app_id">561287280655510</string>
+
+    <string name="about_us">SwiftIntern is the India\'s largest student-focused internship portal, bringing students, employers
+        and higher education institutions together in one centralized location. Swiftintern.com provides a wide variety of
+        interactive tools and services to enable every student, employer and educator to better understand and optimize internship
+        opportunities, enabling businesses to identify the best job candidates and for students to develop the real-world skills
+        they will need upon graduation.</string>
+    <string name="about_us_header">No college Students should graduate without any professional experience</string>
+
+    <string name="title_activity_get_user_info">GetUserInfo</string>
+</resources>

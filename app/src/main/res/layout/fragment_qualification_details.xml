@@ -1,0 +1,239 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.swiftintern.Fragment.QualificationDetails"
+    android:background="#ffffff"
+    android:focusable="true"
+    android:focusableInTouchMode="true" >
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/profile_layout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/linearlayout_userinfo_header"
+            android:background="#E0E0E0"
+            >
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textheader_userinfo_name"
+                    android:text="Enter Your Qualification Details"
+                    android:textSize="25sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="15dp" />
+
+            </RelativeLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@android:color/darker_gray"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/scrollView">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/relative__userinfo_qualification">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/text_userinfo_personal"
+                        android:text="Qualification Details"
+                        android:textColor="#6D4C41"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginTop="6dp"
+                        android:textSize="15sp"/>
+
+                    <View
+                        android:layout_width="67dp"
+                        android:layout_height="1dp"
+                        android:layout_marginLeft="3dp"
+                        android:layout_below="@id/text_userinfo_personal"
+                        android:background="@android:color/darker_gray"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/linear_userinfo_university"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/text_userinfo_personal">
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userinfo_university"
+                            android:text="University"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginTop="5dp"
+                            android:textSize="20sp" />
+
+                        <AutoCompleteTextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userinfo_university_name"
+                            android:textSize="20sp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginRight="5dp"
+                            android:hint="Enter University"
+                            android:imeOptions="actionNext"
+                            android:inputType="text"
+                            android:nextFocusDown="@+id/text_userinfo_degree_name"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/linear_userinfo_degree"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/linear_userinfo_university">
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userinfo_degree"
+                            android:text="Degree"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginTop="5dp"
+                            android:textSize="20sp"/>
+
+                        <EditText
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userinfo_degree_name"
+                            android:textSize="20sp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginRight="5dp"
+                            android:hint="Enter Degree"
+                            android:imeOptions="actionNext"
+                            android:inputType="text"
+                            android:nextFocusDown="@+id/text_userinfo_major_name"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/linear_userinfo_major"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/linear_userinfo_degree">
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userinfo_major"
+                            android:text="Major"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginTop="5dp"
+                            android:textSize="20sp"/>
+
+                        <EditText
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userinfo_major_name"
+                            android:textSize="20sp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginRight="5dp"
+                            android:hint="Enter Major"
+                            android:imeOptions="actionNext"
+                            android:inputType="text"
+                            android:nextFocusDown="@+id/text_userinfo_gpa_name"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/linear_userinfo_gpa"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/linear_userinfo_major">
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userinfo_gpa"
+                            android:text="GPA"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginTop="5dp"
+                            android:textSize="20sp"/>
+
+                        <EditText
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userinfo_gpa_name"
+                            android:textSize="20sp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginRight="5dp"
+                            android:hint="Enter GPA"
+                            android:imeOptions="actionNext"
+                            android:inputType="numberDecimal"
+                            android:nextFocusDown="@+id/text_userinfo_year_name"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/linear_userinfo_year"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/linear_userinfo_gpa">
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userinfo_year"
+                            android:text="Passing Year"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginTop="5dp"
+                            android:textSize="20sp"/>
+
+                        <EditText
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/text_userinfo_year_name"
+                            android:textSize="20sp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginRight="5dp"
+                            android:hint="Enter Passing Year"
+                            android:imeOptions="actionSend"
+                            android:inputType="number"/>
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Submit"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    android:id="@+id/button_submit_userinfo"
+                    android:layout_below="@id/relative__userinfo_qualification"
+                    android:theme="@style/ThemeOverlay.MyDarkButton" />
+            </RelativeLayout>
+
+        </ScrollView>
+    </LinearLayout>
+
+</FrameLayout>

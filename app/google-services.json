@@ -1,0 +1,60 @@
+{
+  "project_info": {
+    "project_id": "swiftintern-b3290",
+    "project_number": "315379482597",
+    "name": "SwiftIntern"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:315379482597:android:bd82e18829a39f49",
+        "client_id": "android:com.swiftintern",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.swiftintern",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "315379482597-r4hq052dsmi2dsgdffj966noa8tahm4l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.swiftintern",
+            "certificate_hash": "B46C7799EC4EDAB60AACA3410D265C7C9EA0B738"
+          }
+        },
+        {
+          "client_id": "315379482597-uq8u4pi9aim5vep9fsqrkt5p6s4rjnh9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.swiftintern",
+            "certificate_hash": "5D504C575B47C8372C965F367729A4C42915D6BF"
+          }
+        }
+      ],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 2
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}
