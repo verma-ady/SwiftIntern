@@ -52,13 +52,13 @@ public class search extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_search, container, false);
-//        Log.v("MyApp", getClass().toString() +"search_fragment");
+
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         gridView = (GridView) view.findViewById(R.id.gridView_category);
         gridView.setAdapter( new ImageAdapter( getActivity() ) );
 
         spinner_places = (Spinner) view.findViewById(R.id.spinner_places);
-        ArrayAdapter<String> list = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_dropdown_item_1line, places );
+        ArrayAdapter<String> list = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, places );
         spinner_places.setAdapter(list);
 
         grid_view_listener();
@@ -89,8 +89,7 @@ public class search extends Fragment {
         });
     }
 
-    public  class ImageAdapter extends BaseAdapter
-    {
+    public  class ImageAdapter extends BaseAdapter {
         private Context mContext;
 
         public ImageAdapter(Context c) {
@@ -251,6 +250,4 @@ public class search extends Fragment {
 
         }
     }//getrepo
-
-
 }

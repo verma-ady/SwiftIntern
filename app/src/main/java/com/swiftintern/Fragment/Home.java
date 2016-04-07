@@ -12,10 +12,13 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -91,8 +94,56 @@ public class Home extends Fragment {
         SearchApi searchApi = new SearchApi();
         searchApi.execute();
 
+        recyclerView.setItemAnimator(new RecyclerView.ItemAnimator() {
+            @Override
+            public boolean animateDisappearance(RecyclerView.ViewHolder viewHolder, ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo) {
+                Log.v("MyApp", "ItemAnimator Disappearance");
+                Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_out_right);
+                viewHolder.itemView.startAnimation(animation);
+                return true;
+            }
+
+            @Override
+            public boolean animateAppearance(RecyclerView.ViewHolder viewHolder, ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo) {
+                Log.v("MyApp", "ItemAnimator Appearance");
+                Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_in_left);
+                viewHolder.itemView.startAnimation(animation);
+                return true;
+            }
+
+            @Override
+            public boolean animatePersistence(RecyclerView.ViewHolder viewHolder, ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo) {
+                return false;
+            }
+
+            @Override
+            public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder, ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo) {
+                return false;
+            }
+
+            @Override
+            public void runPendingAnimations() {
+
+            }
+
+            @Override
+            public void endAnimation(RecyclerView.ViewHolder item) {
+
+            }
+
+            @Override
+            public void endAnimations() {
+
+            }
+
+            @Override
+            public boolean isRunning() {
+                return false;
+            }
+        });
+
         RecyclerListener();
-//        changepage();
+
         return view;
     }
 
@@ -135,137 +186,11 @@ public class Home extends Fragment {
                     Toast.makeText(getActivity(), "Already at last Page", Toast.LENGTH_SHORT).show();
             }
         });
-
-//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener(){
-//            @Override
-//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//                super.onScrolled(recyclerView, dx, dy);
-//                totalItemCount = linearLayoutManager.getItemCount();
-//                lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
-//                if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
-//                    // End has been reached
-//                    // Do something
-//                    loading = true;
-//                    if (pagenumber != (count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
-////                    getCompanyBitmapList = new GetCompanyBitmapList();
-//                        getCompanyBitmapList.cancel(true);
-//
-//                        pagenumber++;
-//                        dialog_page = new ProgressDialog(getActivity());
-//                        dialog_page.setProgressStyle(android.R.attr.progressBarStyleSmall);
-//                        dialog_page.setMessage("Connecting To SwiftIntern");
-//                        dialog_page.show();
-//                        SearchApi searchApi = new SearchApi();
-//                        searchApi.execute();
-//                        Toast.makeText(getActivity(), "Page Number : " + pagenumber, Toast.LENGTH_SHORT).show();
-//                        Log.v("MyApp", "Result next" + pagenumber);
-//                    } else
-//                        Toast.makeText(getActivity(), "Already at last Page", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
-    }
-
-    void changepage(){
-
-        first.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (pagenumber!=1) {
-//                    getCompanyBitmapList = new GetCompanyBitmapList();
-                    getCompanyBitmapList.cancel(true);
-                    dummyContent.clear();
-
-                    pagenumber = 1;
-                    dialog_page = new ProgressDialog(getActivity());
-                    dialog_page.setProgressStyle(android.R.attr.progressBarStyleSmall);
-                    dialog_page.setMessage("Connecting To SwiftIntern");
-                    dialog_page.show();
-                    SearchApi searchApi = new SearchApi();
-                    searchApi.execute();
-                    Toast.makeText(getActivity(), "Page Number : " + pagenumber, Toast.LENGTH_SHORT).show();
-//                    Log.v("MyApp", getClass().toString() +"Result first" + pagenumber);
-                }
-                else
-                    Toast.makeText(getActivity(), "Already at 1st Page", Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
-        prev.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (pagenumber!=1) {
-//                    getCompanyBitmapList = new GetCompanyBitmapList();
-                    getCompanyBitmapList.cancel(true);
-                    dummyContent.clear();
-
-                    pagenumber--;
-                    dialog_page = new ProgressDialog(getActivity());
-                    dialog_page.setProgressStyle(android.R.attr.progressBarStyleSmall);
-                    dialog_page.setMessage("Connecting To SwiftIntern");
-                    dialog_page.show();
-                    SearchApi searchApi = new SearchApi();
-                    searchApi.execute();
-                    Toast.makeText(getActivity(), "Page Number : " + pagenumber, Toast.LENGTH_SHORT).show();
-//                    Log.v("MyApp", getClass().toString() + "Result prev" + pagenumber);
-                }
-                else
-                    Toast.makeText(getActivity(), "Already at 1st Page", Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (pagenumber != (count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
-//                    getCompanyBitmapList = new GetCompanyBitmapList();
-                    getCompanyBitmapList.cancel(true);
-                    dummyContent.clear();
-
-                    pagenumber++;
-                    dialog_page = new ProgressDialog(getActivity());
-                    dialog_page.setProgressStyle(android.R.attr.progressBarStyleSmall);
-                    dialog_page.setMessage("Connecting To SwiftIntern");
-                    dialog_page.show();
-                    SearchApi searchApi = new SearchApi();
-                    searchApi.execute();
-                    Toast.makeText(getActivity(), "Page Number : " + pagenumber, Toast.LENGTH_SHORT).show();
-//                    Log.v("MyApp", "Result next" + pagenumber);
-                } else
-                    Toast.makeText(getActivity(), "Already at last Page", Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
-        last.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (pagenumber != (count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
-//                    getCompanyBitmapList = new GetCompanyBitmapList();
-                    getCompanyBitmapList.cancel(true);
-                    dummyContent.clear();
-
-                    pagenumber = count % 10 == 0 ? count / 10 : (count / 10) + 1;
-                    dialog_page = new ProgressDialog(getActivity());
-                    dialog_page.setProgressStyle(android.R.attr.progressBarStyleSmall);
-                    dialog_page.setMessage("Connecting To SwiftIntern");
-                    dialog_page.show();
-                    SearchApi searchApi = new SearchApi();
-                    searchApi.execute();
-                    Toast.makeText(getActivity(), "Page Number : " + pagenumber, Toast.LENGTH_SHORT).show();
-//                    Log.v("MyApp", "Result last" + pagenumber);
-                } else
-                    Toast.makeText(getActivity(), "Already at last Page", Toast.LENGTH_SHORT).show();
-
-            }
-        });
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
         DummyContent dummy = new DummyContent();
-
+        int lastPosition = -1;
         public RVAdapter(){
             //empty constructor
         }
@@ -285,6 +210,18 @@ public class Home extends Fragment {
             holder.text.setText(dummy.ITEMS.get(position).id);
             holder.subtext.setText(dummy.ITEMS.get(position).content);
             holder.imageView.setImageBitmap(dummy.ITEMS.get(position).image);
+            //setAnimation(holder.cardView, position);
+        }
+
+        private void setAnimation(View viewToAnimate, int position)
+        {
+            // If the bound view wasn't previously displayed on screen, it's animated
+            if (position > lastPosition)
+            {
+                Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_in_left);
+                viewToAnimate.startAnimation(animation);
+                lastPosition = position;
+            }
         }
 
         @Override
@@ -302,6 +239,10 @@ public class Home extends Fragment {
                 text = (TextView) itemView.findViewById(R.id.text_cards);
                 subtext = (TextView) itemView.findViewById(R.id.subtext_cards);
                 imageView = (ImageView) itemView.findViewById(R.id.image_for_search);
+            }
+
+            public void  clearAnimation() {
+                cardView.clearAnimation();
             }
         }
     }
@@ -419,7 +360,6 @@ public class Home extends Fragment {
 //                    Log.v("MyApp", getClass().toString() + " OrgId " + i + " " + org_id[i]);
                 }
             } catch (JSONException e) {
-
                 e.printStackTrace();
             }
 //            Log.v("MyApp", getClass().toString() +"onPostExecute - updateimage");
