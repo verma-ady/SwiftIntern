@@ -5,17 +5,23 @@ import android.content.Context;
 
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -25,6 +31,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
+import com.swiftintern.Helper.ContentSearchCategory;
+import com.swiftintern.Helper.DummyContent;
+import com.swiftintern.Helper.RecyclerItemClickListener;
 import com.swiftintern.R;
 
 import org.w3c.dom.Text;
@@ -37,6 +46,8 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class search extends Fragment {
 
@@ -45,13 +56,21 @@ public class search extends Fragment {
     }
 
     String places[] = {"Delhi", "Gurgaon", "Bangalore", "Mumbai"};
+    String category[] = {"Web", "App", "Business", "Marketing", "Ambassador",
+            "Social", "Design", "Training"};
+
 
     View view;
-    GridView gridView;
+
     TextView locationText;
     CardView locationCard;
     ProgressDialog dialog;
+
     String spinner_text, cat_intern;
+    private RecyclerView recyclerView;
+    private GridLayoutManager gridLayoutManager;
+    private RVAdapter rvAdapter;
+    List<ContentSearchCategory.DummyItem> categoryList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,13 +81,29 @@ public class search extends Fragment {
         locationCard = (CardView) view.findViewById(R.id.getLocation);
         locationText = (TextView) view.findViewById(R.id.textLocation);
 
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-        gridView = (GridView) view.findViewById(R.id.gridView_category);
-        gridView.setAdapter( new ImageAdapter( getActivity() ) );
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_category);
+        recyclerView.setHasFixedSize(true);
+        if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            gridLayoutManager = new GridLayoutManager(getActivity(), 2 );
+        }
+        else{
+            gridLayoutManager = new GridLayoutManager(getActivity(), 4 );
+        }
+        recyclerView.setLayoutManager(gridLayoutManager);
 
-        ArrayAdapter<String> list = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, places );
+        categoryList = new ArrayList<>();
 
-//        grid_view_listener();
+        categoryList.add(new ContentSearchCategory.DummyItem("Web", getResources().getDrawable(R.drawable.a1)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Application", getResources().getDrawable(R.drawable.a2)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Business", getResources().getDrawable(R.drawable.a3)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Marketing", getResources().getDrawable(R.drawable.a4)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Ambassador", getResources().getDrawable(R.drawable.a5)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Social", getResources().getDrawable(R.drawable.a6)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Design", getResources().getDrawable(R.drawable.a7)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Training", getResources().getDrawable(R.drawable.a8)));
+
+        rvAdapter = new RVAdapter(categoryList);
+        recyclerView.setAdapter(rvAdapter);
 
         cardNrecyclerListener();
         return view;
@@ -84,22 +119,22 @@ public class search extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (which) {
                                     case R.id.bs_b:
-                                        Toast.makeText(getContext(),"Selected Bangalore", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Selected Bangalore", Toast.LENGTH_SHORT).show();
                                         spinner_text = places[2];
                                         locationText.setText(spinner_text);
                                         break;
                                     case R.id.bs_m:
-                                        Toast.makeText(getContext(),"Selected Mumbai", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Selected Mumbai", Toast.LENGTH_SHORT).show();
                                         spinner_text = places[3];
                                         locationText.setText(spinner_text);
                                         break;
                                     case R.id.bs_g:
-                                        Toast.makeText(getContext(),"Selected Gurgaon", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Selected Gurgaon", Toast.LENGTH_SHORT).show();
                                         spinner_text = places[1];
                                         locationText.setText(spinner_text);
                                         break;
                                     case R.id.bs_d:
-                                        Toast.makeText(getContext(),"Selected Delhi", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), "Selected Delhi", Toast.LENGTH_SHORT).show();
                                         spinner_text = places[0];
                                         locationText.setText(spinner_text);
                                         break;
@@ -108,87 +143,65 @@ public class search extends Fragment {
                         }).show();
             }
         });
-    }
 
-    void grid_view_listener(){
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-//                Toast.makeText( getActivity(), "Selected : " + category[position] + " and Place is " + spinner_places.getSelectedItem(),
-//                                    Toast.LENGTH_SHORT ).show();
-
-                String category[] = {"Web", "App", "Business", "Marketing", "Ambassador",
-                        "Social", "Design", "Training"};
-                cat_intern = category[position];
+            public void onItemClick(View v, int position) {
                 search_api search = new search_api();
 
                 dialog = new ProgressDialog(getActivity());
                 dialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
                 dialog.setMessage("Connecting To SwiftIntern");
                 dialog.show();
+                cat_intern = category[position];
                 search.execute(cat_intern, spinner_text);
-
             }
-        });
+        }));
+
     }
 
-    public  class ImageAdapter extends BaseAdapter {
-        private Context mContext;
+    public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
 
-        public ImageAdapter(Context c) {
-            mContext = c;
+        ContentSearchCategory dummy= new ContentSearchCategory();
+        public RVAdapter ( List<ContentSearchCategory.DummyItem> list_dummy ){
+            dummy.ITEMS = list_dummy;
         }
 
         @Override
-        public int getCount() {
-            return mThumbIds.length;
+        public RVAdapter.CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_search_category, parent, false );
+            CardViewHolder cardViewHolder = new CardViewHolder( view );
+            return cardViewHolder;
         }
 
         @Override
-        public Object getItem(int position) {
-            return mThumbIds[position];
+        public void onBindViewHolder(RVAdapter.CardViewHolder holder, int position) {
+            holder.text.setText(dummy.ITEMS.get(position).name);
+            holder.imageView.setImageDrawable(dummy.ITEMS.get(position).pic);
         }
 
         @Override
-        public long getItemId(int position) {
-            return 0;
+        public int getItemCount() {
+            return dummy.ITEMS.size();
         }
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public class CardViewHolder extends RecyclerView.ViewHolder {
+            CardView cardView;
+            TextView text;
             ImageView imageView;
-            if (convertView == null) {
-                // if it's not recycled, initialize some attributes
-                WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
-                Display display = wm.getDefaultDisplay();
-                Point point = new Point();
-                display.getSize(point);
-                int width = (point.x)/2;
-
-                imageView = new ImageView(mContext);
-                imageView.setLayoutParams(new GridView.LayoutParams(width-15 , width-15));
-                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                imageView.setPadding(8, 8, 8, 8);
-            } else {
-                imageView = (ImageView) convertView;
+            public CardViewHolder(View itemView) {
+                super(itemView);
+                cardView = (CardView) itemView.findViewById(R.id.card_category);
+                text = (TextView) itemView.findViewById(R.id.card_category_text);
+                imageView = (ImageView) itemView.findViewById(R.id.card_category_image);
             }
-
-            imageView.setImageResource(mThumbIds[position]);
-            return imageView;
         }
-
-        private int[] mThumbIds = {R.drawable.a1, R.drawable.a2, R.drawable.a3, R.drawable.a4,
-                          R.drawable.a5, R.drawable.a6, R.drawable.a7, R.drawable.a8};
     }
 
     public class search_api extends AsyncTask<String, Void, String > {
 
-//        String LOG_CAT = "MyApp";
         @Override
         protected String doInBackground(String... params) {
-
-//            Log.v(LOG_CAT, "URL is " + "doInBackground");
             String error=null;
             if( params.length == 0 ){
                 return "null_noInput";
@@ -196,9 +209,6 @@ public class search extends Fragment {
 
             HttpURLConnection urlConnection = null;
             BufferedReader bufferedReader = null;
-
-//            String base = "https://api.github.com/users";
-//            String repo= "repos";
 
             String base = "http://swiftintern.com";
             String find = "Home.json";
@@ -209,9 +219,6 @@ public class search extends Fragment {
                         .appendQueryParameter("query", params[0])
                         .appendQueryParameter("location",params[1]).build();
 
-
-                //url = new URL("https://api.github.com/users/verma-ady/repos");
-//                Log.v(LOG_CAT, uri.toString());
                 url= new URL(uri.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -265,19 +272,15 @@ public class search extends Fragment {
 
 
             if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-//                dialog.dismiss();
                 Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
                 return  ;
             }
 
             if ( strJSON=="null_internet" ){
-//                dialog.dismiss();
                 Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
                 return ;
             }
 
-//            dialog.dismiss();
-//            Log.v("MyApp", getClass().toString() + "search + on post + " + strJSON );
             search_result searchResult = new search_result();
             android.support.v4.app.FragmentManager fragmentManager = getFragmentManager();
             android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

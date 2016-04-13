@@ -299,18 +299,14 @@ public class search_result extends Fragment {
             }
 
             if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-//                dialog.dismiss();
                 Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
                 return  ;
             }
 
             if ( strJSON=="null_internet" ){
-//                dialog.dismiss();
                 Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
                 return ;
             }
-
-//            Log.v("MyApp", getClass().toString() +"Result" + strJSON);
 
             try {
                 dummyContent.ITEMS.clear();
@@ -421,20 +417,14 @@ public class search_result extends Fragment {
             }
 
             if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-//                dialog.dismiss();
                 Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
                 return  ;
             }
 
             if ( strJSON=="null_internet" ){
-//                dialog.dismiss();
                 Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
                 return ;
             }
-
-
-//            Log.v("MyApp", getClass().toString() +"on post ");
-//            Log.v("MyApp", "Result" + strJSON);
 
             ViewIntern viewIntern = new ViewIntern();
             android.support.v4.app.FragmentManager fragmentManager = getFragmentManager();
@@ -448,13 +438,6 @@ public class search_result extends Fragment {
             viewIntern.setArguments(stringJSON);
             fragmentTransaction.commit();
 
-//            try {
-//                JSONObject JSON = new JSONObject(strJSON);
-////                alert(JSON.getString("enddate"), JSON.getString("opportunity"), JSON.getString("organization"));
-//
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
 
         }
     }

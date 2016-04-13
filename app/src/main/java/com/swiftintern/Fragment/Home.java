@@ -52,7 +52,6 @@ public class Home extends Fragment {
     RecyclerView recyclerView;
     DummyContent dummyContent = new DummyContent();
     RVAdapter rvAdapter;
-    ImageButton prev, next, first, last;
     Integer pagenumber = 1, i, j=0, count, num=0/*number of intern loaded*/;
     View view;
     ProgressDialog dialog_card, dialog_org, dialog_page;
@@ -74,10 +73,6 @@ public class Home extends Fragment {
         Log.v("MyApp", getClass().toString() +"Token is " + sharedPreferences.getString("token", "null"));
         companyBitmap = new ArrayList<>();
         org_id = new ArrayList<>();
-//        prev = (ImageButton) view.findViewById(R.id.prev_page);
-//        next = (ImageButton) view.findViewById(R.id.next_page);
-//        first = (ImageButton) view.findViewById(R.id.first_page);
-//        last = (ImageButton) view.findViewById(R.id.last_page);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycle);
         recyclerView.setHasFixedSize(true);
@@ -102,14 +97,10 @@ public class Home extends Fragment {
 
 
     void RecyclerListener(){
-//        getCompanyBitmapList = new GetCompanyBitmapList();
-
         recyclerView.addOnItemTouchListener
                 (new RecyclerItemClickListener(getActivity(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View v, int position) {
-//                        Toast.makeText(getActivity(), dummyContent.ITEMS.get(position).id.toString() +
-//                                        dummyContent.ITEMS.get(position).opp_id.toString(), Toast.LENGTH_SHORT).show();
                         getCompanyBitmapList.cancel(true);
                         dialog_org = new ProgressDialog(getActivity());
                         dialog_org.setProgressStyle(android.R.attr.progressBarStyleSmall);
@@ -125,16 +116,10 @@ public class Home extends Fragment {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
                 if (pagenumber != (count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
-//                    getCompanyBitmapList = new GetCompanyBitmapList();
 
                     pagenumber++;
-//                    dialog_page = new ProgressDialog(getActivity());
-//                    dialog_page.setProgressStyle(android.R.attr.progressBarStyleSmall);
-//                    dialog_page.setMessage("Connecting To SwiftIntern");
-//                    dialog_page.show();
                     SearchApi searchApi = new SearchApi();
                     searchApi.execute();
-                    //Toast.makeText(getActivity(), "Page Number : " + pagenumber, Toast.LENGTH_SHORT).show();
                     Log.v("MyApp", "Result next" + pagenumber);
                 } else
                     Toast.makeText(getActivity(), "Already at last Page", Toast.LENGTH_SHORT).show();
@@ -291,14 +276,10 @@ public class Home extends Fragment {
             }
 
             if ( strJSON=="null_internet" ){
-//                dialog.dismiss();
                 Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
                 return ;
             }
 
-
-//            Log.v("MyApp", getClass().toString() +"on post ");
-//            Log.v("MyApp", getClass().toString() +"Result" + strJSON);
             int temp=0;
             try {
                 JSONObject JSON = new JSONObject( strJSON);
@@ -311,25 +292,17 @@ public class Home extends Fragment {
                 else{
                     temp = count%10;
                 }
-//                org_id = new int[num];
-
                 for(i=0 ; i<temp ; i++ ){
                     JSONObject obj = opp.getJSONObject(i);
-//                    dummyContent.addItem(new DummyContent.DummyItem(obj.getString("_title"),
-//                            obj.getString("_eligibility"), obj.getString("_id"), obj.getString("_organization_id"), R.drawable.icon_swift_intern));
                     dummyContent.addItem(new DummyContent.DummyItem(obj.getString("_title"),
                             obj.getString("_eligibility"), obj.getString("_id"), obj.getString("_organization_id"), null));
                     org_id.add(obj.getInt("_organization_id"));
-//                    Log.v("MyApp", getClass().toString() + " OrgId " + i + " " + org_id[i]);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-//            Log.v("MyApp", getClass().toString() +"onPostExecute - updateimage");
-
             if(pagenumber==1) {
                 rvAdapter = (RVAdapter) recyclerView.getAdapter();
-//              rvAdapter = new RVAdapter(dummyContent.ITEMS);
                 rvAdapter.dummy.ITEMS = dummyContent.ITEMS;
                 recyclerView.setAdapter(rvAdapter);
             } else {
@@ -391,11 +364,9 @@ public class Home extends Fragment {
             for( j=temp ;j<num ; j++ ){
                 dummyContent.ITEMS.get(j).setBitmap(companyBitmap.get(j));
             }
-//            rvAdapter.dummy.ITEMS = dummyContent.ITEMS;
 
             rvAdapter.notifyItemRangeChanged(temp, j-1 );
             Log.v("MyApp", getClass().toString() + " Updated ");
-//            loading = false;
         }
     }//getbitmap
 
@@ -404,15 +375,10 @@ public class Home extends Fragment {
         //        String LOG_CAT = "MyApp";
         @Override
         protected String doInBackground(String... params) {
-
-//            Log.v(LOG_CAT, getClass().toString() +"URL is " + "doInBackground");
             String error=null;
 
             HttpURLConnection urlConnection = null;
             BufferedReader bufferedReader = null;
-
-//            String base = "https://api.github.com/users";
-//            String repo= "repos";
 
             String base = "http://swiftintern.com/internship/opportunity";
             String find;
@@ -422,9 +388,6 @@ public class Home extends Fragment {
                 find = params[0] + ".json";
                 Uri uri = Uri.parse(base).buildUpon().appendPath(find).build();
 
-
-                //url = new URL("https://api.github.com/users/verma-ady/repos");
-//                Log.v(LOG_CAT,getClass().toString() + uri.toString());
                 url= new URL(uri.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -490,8 +453,6 @@ public class Home extends Fragment {
                 return ;
             }
 
-//            Log.v("MyApp",getClass().toString() + " On Post Response : " + strJSON);
-
             ViewIntern viewIntern = new ViewIntern();
             android.support.v4.app.FragmentManager fragmentManager = getFragmentManager();
             android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -502,14 +463,6 @@ public class Home extends Fragment {
             stringJSON.putString("JSON", strJSON);
             viewIntern.setArguments(stringJSON);
             fragmentTransaction.commit();
-
-//            try {
-//                JSONObject JSON = new JSONObject(strJSON);
-//                alert(JSON.getString("enddate"), JSON.getString("opportunity"), JSON.getString("organization"));
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-
         }
     }
 
