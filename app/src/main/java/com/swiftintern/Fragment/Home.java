@@ -147,6 +147,8 @@ public class Home extends Fragment {
         return view;
     }
 
+
+
     void RecyclerListener(){
 //        getCompanyBitmapList = new GetCompanyBitmapList();
 
