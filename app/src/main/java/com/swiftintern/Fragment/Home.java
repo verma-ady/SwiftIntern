@@ -144,8 +144,6 @@ public class Home extends Fragment {
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
         DummyContent dummy = new DummyContent();
-        int lastPosition = -1;
-        int firstPosition = -1;
         public RVAdapter(){
             //empty constructor
         }
@@ -178,13 +176,9 @@ public class Home extends Fragment {
             {
                 Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.pull_in_left);
                 viewToAnimate.startAnimation(animation);
-//                lastPosition = position;
-
             } else if ( position<first ){ // scroll up
                 Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.pull_in_right);
                 viewToAnimate.startAnimation(animation);
-//                firstPosition = position;
-//                lastPosition--;
             }
         }
 
