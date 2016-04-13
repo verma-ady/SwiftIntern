@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -25,8 +26,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,29 +81,40 @@ public class search extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_search, container, false);
 
+        spinner_text = null;
+        cat_intern = null;
         locationCard = (CardView) view.findViewById(R.id.getLocation);
         locationText = (TextView) view.findViewById(R.id.textLocation);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_category);
         recyclerView.setHasFixedSize(true);
         if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-            gridLayoutManager = new GridLayoutManager(getActivity(), 2 );
+            gridLayoutManager = new GridLayoutManager(getContext(), 2 );
         }
         else{
-            gridLayoutManager = new GridLayoutManager(getActivity(), 4 );
+            gridLayoutManager = new GridLayoutManager(getContext(), 4 );
         }
+//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setLayoutManager(gridLayoutManager);
 
         categoryList = new ArrayList<>();
 
-        categoryList.add(new ContentSearchCategory.DummyItem("Web", getResources().getDrawable(R.drawable.a1)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Application", getResources().getDrawable(R.drawable.a2)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Business", getResources().getDrawable(R.drawable.a3)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Marketing", getResources().getDrawable(R.drawable.a4)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Ambassador", getResources().getDrawable(R.drawable.a5)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Social", getResources().getDrawable(R.drawable.a6)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Design", getResources().getDrawable(R.drawable.a7)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Training", getResources().getDrawable(R.drawable.a8)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Web",
+                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a1)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Application",
+                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a2)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Business",
+                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a3)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Marketing",
+                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a4)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Ambassador",
+                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a5)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Social",
+                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a6)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Design",
+                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a7)));
+        categoryList.add(new ContentSearchCategory.DummyItem("Training",
+                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a8)));
 
         rvAdapter = new RVAdapter(categoryList);
         recyclerView.setAdapter(rvAdapter);
@@ -148,13 +162,17 @@ public class search extends Fragment {
             @Override
             public void onItemClick(View v, int position) {
                 search_api search = new search_api();
+                if(spinner_text==null){
+                  locationCard.performClick();
+                } else {
+                    dialog = new ProgressDialog(getActivity());
+                    dialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
+                    dialog.setMessage("Connecting To SwiftIntern");
+                    dialog.show();
+                    cat_intern = category[position];
+                    search.execute(cat_intern, spinner_text);
+                }
 
-                dialog = new ProgressDialog(getActivity());
-                dialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
-                dialog.setMessage("Connecting To SwiftIntern");
-                dialog.show();
-                cat_intern = category[position];
-                search.execute(cat_intern, spinner_text);
             }
         }));
 
@@ -176,8 +194,20 @@ public class search extends Fragment {
 
         @Override
         public void onBindViewHolder(RVAdapter.CardViewHolder holder, int position) {
+
+            WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+            Display display = wm.getDefaultDisplay();
+            Point point = new Point();
+            display.getSize(point);
+            int width = (point.x)/2;
+            int layoutW, layoutH;
+            layoutW = width-15;
+            layoutH = width-15;
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(layoutW, layoutH );
+            holder.imageView.setLayoutParams(params);
+
             holder.text.setText(dummy.ITEMS.get(position).name);
-            holder.imageView.setImageDrawable(dummy.ITEMS.get(position).pic);
+            holder.imageView.setImageBitmap(dummy.ITEMS.get(position).pic);
         }
 
         @Override

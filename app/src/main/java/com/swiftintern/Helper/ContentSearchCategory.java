@@ -1,5 +1,6 @@
 package com.swiftintern.Helper;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import java.util.ArrayList;
@@ -27,9 +28,9 @@ public class ContentSearchCategory {
      */
     public static class DummyItem {
         public String name;
-        public Drawable pic;
+        public Bitmap pic;
 
-        public DummyItem(String vName, Drawable vpic) {
+        public DummyItem(String vName, Bitmap vpic) {
             name = vName;
             pic = vpic;
         }
