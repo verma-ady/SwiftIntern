@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/bs_d"
+        android:title="Delhi" />
+
+    <item android:id="@+id/bs_m"
+        android:title="Mumbai" />
+
+    <item android:id="@+id/bs_g"
+        android:title="Gurgaon" />
+
+    <item android:id="@+id/bs_b"
+        android:title="Bangalore" />
+
+</menu>

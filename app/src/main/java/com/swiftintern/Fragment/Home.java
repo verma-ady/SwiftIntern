@@ -94,54 +94,6 @@ public class Home extends Fragment {
         SearchApi searchApi = new SearchApi();
         searchApi.execute();
 
-        recyclerView.setItemAnimator(new RecyclerView.ItemAnimator() {
-            @Override
-            public boolean animateDisappearance(RecyclerView.ViewHolder viewHolder, ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo) {
-                Log.v("MyApp", "ItemAnimator Disappearance");
-                Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_out_right);
-                viewHolder.itemView.startAnimation(animation);
-                return true;
-            }
-
-            @Override
-            public boolean animateAppearance(RecyclerView.ViewHolder viewHolder, ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo) {
-                Log.v("MyApp", "ItemAnimator Appearance");
-                Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_in_left);
-                viewHolder.itemView.startAnimation(animation);
-                return true;
-            }
-
-            @Override
-            public boolean animatePersistence(RecyclerView.ViewHolder viewHolder, ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo) {
-                return false;
-            }
-
-            @Override
-            public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder, ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo) {
-                return false;
-            }
-
-            @Override
-            public void runPendingAnimations() {
-
-            }
-
-            @Override
-            public void endAnimation(RecyclerView.ViewHolder item) {
-
-            }
-
-            @Override
-            public void endAnimations() {
-
-            }
-
-            @Override
-            public boolean isRunning() {
-                return false;
-            }
-        });
-
         RecyclerListener();
 
         return view;
@@ -193,6 +145,7 @@ public class Home extends Fragment {
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
         DummyContent dummy = new DummyContent();
         int lastPosition = -1;
+        int firstPosition = -1;
         public RVAdapter(){
             //empty constructor
         }
@@ -212,18 +165,32 @@ public class Home extends Fragment {
             holder.text.setText(dummy.ITEMS.get(position).id);
             holder.subtext.setText(dummy.ITEMS.get(position).content);
             holder.imageView.setImageBitmap(dummy.ITEMS.get(position).image);
-            //setAnimation(holder.cardView, position);
+            setAnimation(holder.itemView, position);
         }
 
         private void setAnimation(View viewToAnimate, int position)
         {
             // If the bound view wasn't previously displayed on screen, it's animated
-            if (position > lastPosition)
+            int first = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
+            int last = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+
+            if (position > last) // scroll down
             {
-                Animation animation = AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_in_left);
+                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.pull_in_left);
                 viewToAnimate.startAnimation(animation);
-                lastPosition = position;
+//                lastPosition = position;
+
+            } else if ( position<first ){ // scroll up
+                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.pull_in_right);
+                viewToAnimate.startAnimation(animation);
+//                firstPosition = position;
+//                lastPosition--;
             }
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(CardViewHolder holder) {
+            super.onViewDetachedFromWindow(holder);
         }
 
         @Override
