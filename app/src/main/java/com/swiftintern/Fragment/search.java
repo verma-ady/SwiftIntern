@@ -3,12 +3,14 @@ package com.swiftintern.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,10 +21,13 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cocosw.bottomsheet.BottomSheet;
 import com.swiftintern.R;
+
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,7 +48,8 @@ public class search extends Fragment {
 
     View view;
     GridView gridView;
-    Spinner spinner_places;
+    TextView locationText;
+    CardView locationCard;
     ProgressDialog dialog;
     String spinner_text, cat_intern;
 
@@ -53,17 +59,55 @@ public class search extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_search, container, false);
 
+        locationCard = (CardView) view.findViewById(R.id.getLocation);
+        locationText = (TextView) view.findViewById(R.id.textLocation);
+
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         gridView = (GridView) view.findViewById(R.id.gridView_category);
         gridView.setAdapter( new ImageAdapter( getActivity() ) );
 
-        spinner_places = (Spinner) view.findViewById(R.id.spinner_places);
         ArrayAdapter<String> list = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, places );
-        spinner_places.setAdapter(list);
 
-        grid_view_listener();
+//        grid_view_listener();
 
+        cardNrecyclerListener();
         return view;
+    }
+
+    private void cardNrecyclerListener(){
+        locationCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new BottomSheet.Builder(getActivity(), R.style.BottomSheet_StyleDialog).title("Select a Location").sheet(R.menu.search_bottomsheet)
+                        .listener(new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case R.id.bs_b:
+                                        Toast.makeText(getContext(),"Selected Bangalore", Toast.LENGTH_SHORT).show();
+                                        spinner_text = places[2];
+                                        locationText.setText(spinner_text);
+                                        break;
+                                    case R.id.bs_m:
+                                        Toast.makeText(getContext(),"Selected Mumbai", Toast.LENGTH_SHORT).show();
+                                        spinner_text = places[3];
+                                        locationText.setText(spinner_text);
+                                        break;
+                                    case R.id.bs_g:
+                                        Toast.makeText(getContext(),"Selected Gurgaon", Toast.LENGTH_SHORT).show();
+                                        spinner_text = places[1];
+                                        locationText.setText(spinner_text);
+                                        break;
+                                    case R.id.bs_d:
+                                        Toast.makeText(getContext(),"Selected Delhi", Toast.LENGTH_SHORT).show();
+                                        spinner_text = places[0];
+                                        locationText.setText(spinner_text);
+                                        break;
+                                }
+                            }
+                        }).show();
+            }
+        });
     }
 
     void grid_view_listener(){
@@ -78,7 +122,7 @@ public class search extends Fragment {
                         "Social", "Design", "Training"};
                 cat_intern = category[position];
                 search_api search = new search_api();
-                spinner_text = spinner_places.getSelectedItem().toString();
+
                 dialog = new ProgressDialog(getActivity());
                 dialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
                 dialog.setMessage("Connecting To SwiftIntern");

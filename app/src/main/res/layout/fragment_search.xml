@@ -12,21 +12,43 @@
         android:layout_height="match_parent">
 
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/get_category"
-            android:text="Select Category and Place"
-            android:textSize="25sp"
-            android:layout_marginTop="3dp"
-            android:layout_marginLeft="5dp"/>
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/get_category"-->
+            <!--android:text="Select Category and Place"-->
+            <!--android:textSize="25sp"-->
+            <!--android:layout_marginTop="3dp"-->
+            <!--android:layout_marginLeft="5dp"/>-->
 
-        <Spinner
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spinner_places"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"/>
+            android:layout_margin="7dp"
+            android:id="@+id/getLocation">
+
+            <LinearLayout
+                style="@style/Widget.CardContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tap to Select Location"
+                    android:id="@+id/textLocation"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+
+        <!--<Spinner-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/spinner_places"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_centerHorizontal="true"/>-->
 
         <GridView
             android:layout_width="match_parent"
@@ -38,10 +60,8 @@
             android:numColumns="2"
             android:stretchMode="columnWidth"
             android:gravity="center_horizontal"
-            android:layout_below="@id/get_category"
-            android:layout_above="@id/spinner_places"
+            android:layout_below="@id/getLocation"
             android:elevation="5dp"/>
-
 
     </RelativeLayout>
 

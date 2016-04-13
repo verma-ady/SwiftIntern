@@ -44,4 +44,5 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:4.6.0'
     compile 'com.nbsp:library:1.02'
     compile 'com.mcxiaoke.volley:library:1.0.15@aar'
+    compile 'com.cocosw:bottomsheet:1.+@aar'
 }
