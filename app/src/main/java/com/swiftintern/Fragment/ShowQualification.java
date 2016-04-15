@@ -50,7 +50,7 @@ public class ShowQualification extends Fragment {
     ProgressDialog progressDialog;
     SharedPreferences sharedPreferences;
     RecyclerView recyclerView;
-    TextView textView_Head;
+    TextView textView;
     RVAdapter rvAdapter;
     CardQualificationContent cardsAppContent = new CardQualificationContent();
     Button button;
@@ -71,7 +71,7 @@ public class ShowQualification extends Fragment {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        textView_Head = (TextView) view.findViewById(R.id.text_app_head);
+        textView = (TextView) view.findViewById(R.id.textQualification);
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
         progressDialog.setMessage("Fetching Qualifications");
@@ -264,7 +264,7 @@ public class ShowQualification extends Fragment {
                 searchOrganisationName.execute();
             } catch (JSONException e) {
                 e.printStackTrace();
-                textView_Head.setText("No Qualifications Added");
+                textView.setText("No Qualifications Added");
             }
 
             for(int i =0 ; i<length ; i++ ){

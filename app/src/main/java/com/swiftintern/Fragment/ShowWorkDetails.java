@@ -49,6 +49,7 @@ public class ShowWorkDetails extends Fragment {
     RecyclerView recyclerView;
     CardWorkContent cardWorkContent = new CardWorkContent();
     Button button;
+    TextView textView;
     int length;
     String org_id[], workData[][], workID[], token;
     SharedPreferences sharedPreferences;
@@ -69,6 +70,7 @@ public class ShowWorkDetails extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
 
         button = (Button) view.findViewById(R.id.workdetail_add);
+        textView = (TextView) view.findViewById(R.id.textWork);
 
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
@@ -252,7 +254,7 @@ public class ShowWorkDetails extends Fragment {
                 searchOrganisationName.execute();
             } catch (JSONException e) {
                 e.printStackTrace();
-                cardWorkContent.addItem(new CardWorkContent.DummyItem("No Work Record Found", null, null, null));
+                textView.setText("No Work Records");
                 progressDialog.dismiss();
             }
         }

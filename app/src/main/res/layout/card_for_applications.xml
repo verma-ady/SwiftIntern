@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusableInTouchMode="true"
-    android:background="#E0E0E0">
+    android:background="#FFFFFF">
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
@@ -13,8 +13,7 @@
         android:id="@+id/recycle_app"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
-        android:elevation="10dp"
-        />
+        android:elevation="10dp" />
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
