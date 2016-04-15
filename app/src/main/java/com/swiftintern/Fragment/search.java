@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
@@ -76,6 +77,56 @@ public class search extends Fragment {
     List<ContentSearchCategory.DummyItem> categoryList;
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point point = new Point();
+        display.getSize(point);
+        int layoutW;
+
+        if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            gridLayoutManager = new GridLayoutManager(getContext(), 2 );
+            int width = (point.x)/2;
+            layoutW = width-160;
+        }
+        else{
+            gridLayoutManager = new GridLayoutManager(getContext(), 3 );
+            int width = (point.x)/3;
+            layoutW = width-160;
+        }
+        recyclerView.setLayoutManager(gridLayoutManager);
+
+        categoryList.clear();
+        Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.web), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Web", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.app), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Application", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.business), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Business", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.marketing), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Marketing", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ambassador), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Ambassador", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.social), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Social", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.design), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Design", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.training), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Training", bitmap));
+
+        rvAdapter = new RVAdapter(categoryList);
+        recyclerView.setAdapter(rvAdapter);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -88,33 +139,53 @@ public class search extends Fragment {
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_category);
         recyclerView.setHasFixedSize(true);
+
+
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point point = new Point();
+        display.getSize(point);
+        int layoutW;
+
         if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
             gridLayoutManager = new GridLayoutManager(getContext(), 2 );
+            int width = (point.x)/2;
+            layoutW = width-160;
         }
         else{
-            gridLayoutManager = new GridLayoutManager(getContext(), 4 );
+            gridLayoutManager = new GridLayoutManager(getContext(), 3 );
+            int width = (point.x)/3;
+            layoutW = width-160;
         }
-//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()))
         recyclerView.setLayoutManager(gridLayoutManager);
-
         categoryList = new ArrayList<>();
 
-        categoryList.add(new ContentSearchCategory.DummyItem("Web",
-                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a1)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Application",
-                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a2)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Business",
-                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a3)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Marketing",
-                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a4)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Ambassador",
-                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a5)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Social",
-                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a6)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Design",
-                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a7)));
-        categoryList.add(new ContentSearchCategory.DummyItem("Training",
-                        BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a8)));
+
+
+        Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.web), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Web", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.app), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Application", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.business), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Business", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.marketing), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Marketing", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ambassador), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Ambassador", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.social), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Social", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.design), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Design", bitmap));
+
+        bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.training), layoutW, layoutW, true);
+        categoryList.add(new ContentSearchCategory.DummyItem("Training", bitmap));
 
         rvAdapter = new RVAdapter(categoryList);
         recyclerView.setAdapter(rvAdapter);

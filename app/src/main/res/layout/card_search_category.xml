@@ -13,7 +13,8 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
+        android:padding="2dp"
+        android:layout_margin="3dp"
         android:id="@+id/card_category">
 
         <LinearLayout
@@ -23,13 +24,15 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
                 android:id="@+id/card_category_image"/>
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/card_category_text"
+                android:layout_gravity="center_horizontal"
                 android:textAppearance="@style/TextAppearance.AppCompat.Button" />
 
         </LinearLayout>
