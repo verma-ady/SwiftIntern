@@ -88,12 +88,12 @@ public class search extends Fragment {
         if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
             gridLayoutManager = new GridLayoutManager(getContext(), 2 );
             int width = (point.x)/2;
-            layoutW = width-160;
+            layoutW = width-40;
         }
         else{
             gridLayoutManager = new GridLayoutManager(getContext(), 3 );
             int width = (point.x)/3;
-            layoutW = width-160;
+            layoutW = width-40;
         }
         recyclerView.setLayoutManager(gridLayoutManager);
 
@@ -140,7 +140,6 @@ public class search extends Fragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_category);
         recyclerView.setHasFixedSize(true);
 
-
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point point = new Point();
@@ -150,18 +149,15 @@ public class search extends Fragment {
         if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
             gridLayoutManager = new GridLayoutManager(getContext(), 2 );
             int width = (point.x)/2;
-            layoutW = width-160;
-        }
-        else{
+            layoutW = width-40;
+        } else{
             gridLayoutManager = new GridLayoutManager(getContext(), 3 );
             int width = (point.x)/3;
-            layoutW = width-160;
+            layoutW = width-40;
         }
-//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()))
+
         recyclerView.setLayoutManager(gridLayoutManager);
         categoryList = new ArrayList<>();
-
-
 
         Bitmap bitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.web), layoutW, layoutW, true);
         categoryList.add(new ContentSearchCategory.DummyItem("Web", bitmap));
@@ -266,18 +262,8 @@ public class search extends Fragment {
         @Override
         public void onBindViewHolder(RVAdapter.CardViewHolder holder, int position) {
 
-            WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-            Display display = wm.getDefaultDisplay();
-            Point point = new Point();
-            display.getSize(point);
-            int width = (point.x)/2;
-            int layoutW, layoutH;
-            layoutW = width-15;
-            layoutH = width-15;
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(layoutW, layoutH );
-            holder.imageView.setLayoutParams(params);
-
             holder.text.setText(dummy.ITEMS.get(position).name);
+            holder.imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             holder.imageView.setImageBitmap(dummy.ITEMS.get(position).pic);
         }
 
