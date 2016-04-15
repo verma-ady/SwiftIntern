@@ -5,8 +5,6 @@
     tools:context="com.swiftintern.Fragment.studentprofile"
     android:background="#ffffff">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

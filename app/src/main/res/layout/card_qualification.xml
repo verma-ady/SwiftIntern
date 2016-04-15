@@ -5,27 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusableInTouchMode="true"
-    android:background="#E0E0E0">
+    android:background="#FFFFFF">
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/recycle_quali"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:elevation="10dp" />
+        android:padding="5dp"
+        android:elevation="5dp" />
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/cards_view_quali"
-        android:layout_marginLeft="7dp"
-        android:layout_marginRight="7dp"
+        android:padding="2dp"
+        android:layout_margin="2dp"
         card_view:cardUseCompatPadding="true"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp"
         android:foreground="?attr/selectableItemBackground"
-        android:elevation="30dp"
         android:focusable="true"
         android:clickable="true"
         android:contentDescription="false">
@@ -37,9 +33,7 @@
             android:paddingLeft="4dp"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"
-            android:paddingRight="4dp"
-            android:elevation="40dp"
-            android:orientation="horizontal">
+            android:paddingRight="4dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -48,8 +42,6 @@
                 android:textSize="25sp"
                 android:textColor="#6D4C41"
                 android:paddingLeft="10dp"
-                android:paddingTop="5dp"
-                android:paddingBottom="3dp"
                 android:paddingRight="5dp"/>
 
             <TextView
@@ -59,8 +51,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:paddingLeft="10dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="2dp"
                 android:paddingRight="5dp"
                 android:layout_below="@id/text_card_quali_university"/>
 
@@ -72,7 +62,6 @@
                 android:layout_below="@id/text_card_quali_degree"
                 android:layout_marginTop="1dp"
                 android:layout_marginBottom="2dp"
-                android:elevation="3dp"
                 android:layout_marginLeft="5dp">
                 <TextView
                     android:layout_width="130dp"
@@ -100,7 +89,6 @@
                 android:layout_below="@+id/linear_quali_major"
                 android:layout_marginTop="1dp"
                 android:layout_marginBottom="2dp"
-                android:elevation="3dp"
                 android:layout_marginLeft="5dp">
                 <TextView
                     android:layout_width="130dp"
@@ -129,7 +117,6 @@
                 android:layout_below="@+id/linear_quali_gpa"
                 android:layout_marginTop="1dp"
                 android:layout_marginBottom="2dp"
-                android:elevation="3dp"
                 android:layout_marginLeft="5dp">
                 <TextView
                     android:layout_width="130dp"

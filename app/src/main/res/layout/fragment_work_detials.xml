@@ -46,7 +46,7 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="7dp"
+                android:layout_margin="3dp"
                 android:id="@+id/getWorkInfo">
                 <LinearLayout
                     style="@style/Widget.CardContent"
@@ -64,8 +64,9 @@
                             android:layout_height="wrap_content"
                             android:id="@+id/text_userdata_company_name"
                             android:textSize="20sp"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginRight="2dp"
+                            android:layout_marginEnd="2dp"
                             android:hint="Enter Organisation"
                             android:imeOptions="actionNext"
                             android:inputType="text"/>
@@ -81,8 +82,9 @@
                             android:layout_height="wrap_content"
                             android:id="@+id/text_userdata_duration_name"
                             android:textSize="20sp"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginRight="2dp"
+                            android:layout_marginEnd="2dp"
                             android:hint="Enter Duration"
                             android:imeOptions="actionNext"
                             android:inputType="number"/>
@@ -99,8 +101,9 @@
                             android:layout_height="wrap_content"
                             android:id="@+id/text_userdata_designation_name"
                             android:textSize="20sp"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginRight="2dp"
+                            android:layout_marginEnd="2dp"
                             android:hint="Enter Designation"
                             android:imeOptions="actionNext"
                             android:inputType="text"/>
@@ -118,8 +121,9 @@
                             android:layout_height="wrap_content"
                             android:id="@+id/text_userdata_responsibility_name"
                             android:textSize="20sp"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginRight="5dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginRight="2dp"
+                            android:layout_marginEnd="2dp"
                             android:hint="Enter Responsibilty"
                             android:imeOptions="actionSend"
                             android:inputType="text"/>
