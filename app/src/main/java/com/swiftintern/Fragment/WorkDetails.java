@@ -83,7 +83,7 @@ public class WorkDetails extends Fragment {
 
         duration = (EditText) view.findViewById(R.id.text_userdata_duration_name);
         designation = (EditText) view.findViewById(R.id.text_userdata_designation_name);
-        responsibility = (EditText) view.findViewById(R.id.text_userdata_responsibilit_name);
+        responsibility = (EditText) view.findViewById(R.id.text_userdata_responsibility_name);
         company = (AutoCompleteTextView) view.findViewById(R.id.text_userdata_company_name);
         submit = (Button) view.findViewById(R.id.button_submit_userdata);
 

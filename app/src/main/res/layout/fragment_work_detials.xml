@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.swiftintern.Fragment.WorkDetails"
-    android:background="#ffffff">
+    android:background="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,33 +11,26 @@
         android:orientation="vertical"
         android:id="@+id/profile_userdata_layout">
 
-        <LinearLayout
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:id="@+id/linearlayout_userdata_header"
-            android:background="#E0E0E0"
-            >
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
+            android:layout_margin="7dp"
+            android:id="@+id/getWork">
+            <LinearLayout
+                style="@style/Widget.CardContent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp">
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/textheader_userdata_name"
-                    android:text="Enter Your Work Details"
-                    android:textSize="25sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginLeft="15dp" />
+                    android:text="Enter New Work Record"
+                    android:id="@+id/textLocation"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
-            </RelativeLayout>
-        </LinearLayout>
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
 
         <View
             android:layout_width="match_parent"
@@ -47,47 +40,24 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/scrollView">
-            <RelativeLayout
+            android:id="@+id/scrollView"
+            android:layout_marginBottom="30dp">
+
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="vertical">
-                <RelativeLayout
+                android:layout_margin="7dp"
+                android:id="@+id/getWorkInfo">
+                <LinearLayout
+                    style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/relative__userdata_qualification">
+                    android:orientation="vertical">
 
-                    <TextView
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/text_userdata_company"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/text_userdata_personal"
-                        android:text="Work Details"
-                        android:textColor="#6D4C41"
-                        android:layout_marginLeft="6dp"
-                        android:layout_marginTop="6dp"
-                        android:textSize="15sp"/>
-
-                    <View
-                        android:layout_width="67dp"
-                        android:layout_height="1dp"
-                        android:layout_marginLeft="3dp"
-                        android:layout_below="@id/text_userdata_personal"
-                        android:background="@android:color/darker_gray"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linear_userdata_company"
-                        android:orientation="horizontal"
-                        android:layout_below="@+id/text_userdata_personal">
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/text_userdata_company"
-                            android:text="Company"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="5dp"
-                            android:textSize="20sp" />
+                        android:layout_height="wrap_content">
 
                         <AutoCompleteTextView
                             android:layout_width="fill_parent"
@@ -96,26 +66,15 @@
                             android:textSize="20sp"
                             android:layout_marginTop="5dp"
                             android:layout_marginRight="5dp"
-                            android:hint="Enter Company"
+                            android:hint="Enter Organisation"
                             android:imeOptions="actionNext"
                             android:inputType="text"/>
+                    </android.support.design.widget.TextInputLayout>
 
-                    </LinearLayout>
-
-                    <LinearLayout
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/text_userdata_duration"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linear_userdata_duration"
-                        android:orientation="horizontal"
-                        android:layout_below="@+id/linear_userdata_company">
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/text_userdata_duration"
-                            android:text="Duration"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="5dp"
-                            android:textSize="20sp"/>
+                        android:layout_height="wrap_content">
 
                         <EditText
                             android:layout_width="fill_parent"
@@ -128,22 +87,12 @@
                             android:imeOptions="actionNext"
                             android:inputType="number"/>
 
-                    </LinearLayout>
+                    </android.support.design.widget.TextInputLayout>
 
-                    <LinearLayout
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/text_userdata_designation"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linear_userdata_designation"
-                        android:orientation="horizontal"
-                        android:layout_below="@+id/linear_userdata_duration">
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/text_userdata_designation"
-                            android:text="Designation"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="5dp"
-                            android:textSize="20sp"/>
+                        android:layout_height="wrap_content">
 
                         <EditText
                             android:layout_width="fill_parent"
@@ -156,49 +105,38 @@
                             android:imeOptions="actionNext"
                             android:inputType="text"/>
 
-                    </LinearLayout>
 
-                    <LinearLayout
+                    </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/text_userdata_responsibility"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linear_userdata_responsibility"
-                        android:orientation="horizontal"
-                        android:layout_below="@+id/linear_userdata_designation">
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/text_userdata_responsibilit"
-                            android:text="Responsibility"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="5dp"
-                            android:textSize="20sp"/>
+                        android:layout_height="wrap_content">
 
                         <EditText
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
-                            android:id="@+id/text_userdata_responsibilit_name"
+                            android:id="@+id/text_userdata_responsibility_name"
                             android:textSize="20sp"
                             android:layout_marginTop="5dp"
                             android:layout_marginRight="5dp"
                             android:hint="Enter Responsibilty"
                             android:imeOptions="actionSend"
                             android:inputType="text"/>
-                    </LinearLayout>
 
-                </RelativeLayout>
-
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Submit"
-                    android:id="@+id/button_submit_userdata"
-                    android:textSize="25sp"
-                    android:textStyle="bold"
-                    android:layout_below="@id/relative__userdata_qualification"
-                    android:theme="@style/ThemeOverlay.MyDarkButton" />
-            </RelativeLayout>
+                    </android.support.design.widget.TextInputLayout>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
 
         </ScrollView>
     </LinearLayout>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:id="@+id/button_submit_userdata"
+        android:textSize="25sp"
+        android:layout_gravity="bottom"
+        android:theme="@style/ThemeOverlay.MyDarkButton" />
 
 </FrameLayout>

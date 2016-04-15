@@ -16,7 +16,6 @@
             android:layout_height="wrap_content"
             android:layout_margin="7dp"
             android:id="@+id/getLocation">
-
             <LinearLayout
                 style="@style/Widget.CardContent"
                 android:layout_width="match_parent"

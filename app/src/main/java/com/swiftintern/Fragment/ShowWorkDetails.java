@@ -50,7 +50,6 @@ public class ShowWorkDetails extends Fragment {
     CardWorkContent cardWorkContent = new CardWorkContent();
     Button button;
     int length;
-    TextView textView_Head;
     String org_id[], workData[][], workID[], token;
     SharedPreferences sharedPreferences;
     ProgressDialog progressDialog;
@@ -68,11 +67,12 @@ public class ShowWorkDetails extends Fragment {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
+
         button = (Button) view.findViewById(R.id.workdetail_add);
-        textView_Head = (TextView) view.findViewById(R.id.text_app_head);
+
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
-        progressDialog.setMessage("Fetching Qualifications");
+        progressDialog.setMessage("Fetching Work Details");
         progressDialog.show();
 
         cardWorkContent.clear();
@@ -174,10 +174,6 @@ public class ShowWorkDetails extends Fragment {
                 urlConnection.setDoOutput(true);
                 urlConnection.getOutputStream().write(postData);
 
-//                DataOutputStream wr = new DataOutputStream( urlConnection.getOutputStream());
-//                try{
-//                    wr.write( postData );
-//                } catch (  )
                 urlConnection.connect();
 
                 InputStream inputStream = urlConnection.getInputStream();
@@ -227,7 +223,7 @@ public class ShowWorkDetails extends Fragment {
 
             if( strJSON=="null_inputstream" || strJSON=="null_file" ){
                 progressDialog.dismiss();
-                Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Unable to connect to Server", Toast.LENGTH_SHORT).show();
                 return  ;
             }
 
@@ -238,7 +234,6 @@ public class ShowWorkDetails extends Fragment {
             }
 
             try {
-                progressDialog.dismiss();
                 JSONObject jsonObject = new JSONObject(strJSON);
                 JSONArray quali = jsonObject.getJSONArray("works");
                 length = quali.length();
@@ -257,14 +252,9 @@ public class ShowWorkDetails extends Fragment {
                 searchOrganisationName.execute();
             } catch (JSONException e) {
                 e.printStackTrace();
-                textView_Head.setText("No Work Added");
+                cardWorkContent.addItem(new CardWorkContent.DummyItem("No Work Record Found", null, null, null));
+                progressDialog.dismiss();
             }
-
-            for(int i =0 ; i<length ; i++ ){
-                Log.v("MyApp", getClass().toString() +"Organization IDs" + org_id[i]);
-            }
-
-//            Log.v("MyApp", getClass().toString() + strJSON);
         }
     }
 
@@ -363,13 +353,12 @@ public class ShowWorkDetails extends Fragment {
 
             for(int i =0 ; i<length ; i++ ){
                 Log.v("MyApp", getClass().toString() + Integer.toString(i) + "  " + workData[i][0] + "  " +
-                        workData[i][1] + "  " + workData[i][2] + "  "+ workData[i][3]);
-                cardWorkContent.addItem(new CardWorkContent.DummyItem(workData[i][0],workData[i][2],workData[i][1] + " years",workData[i][3] ));
-
-                rvAdapter = new RVAdapter(cardWorkContent.ITEMS);
-                recyclerView.setAdapter(rvAdapter);
-                progressDialog.dismiss();
+                        workData[i][1] + "  " + workData[i][2] + "  " + workData[i][3]);
+                cardWorkContent.addItem(new CardWorkContent.DummyItem(workData[i][0], workData[i][2], workData[i][1] + " years", workData[i][3]));
             }
+            rvAdapter = new RVAdapter(cardWorkContent.ITEMS);
+            recyclerView.setAdapter(rvAdapter);
+            progressDialog.dismiss();
         }
     }
 

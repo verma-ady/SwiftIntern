@@ -94,7 +94,11 @@ public class Home extends Fragment {
         return view;
     }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        j=0;
+    }
 
     void RecyclerListener(){
         recyclerView.addOnItemTouchListener
