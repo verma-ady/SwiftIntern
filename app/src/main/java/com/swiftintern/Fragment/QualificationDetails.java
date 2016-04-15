@@ -419,8 +419,6 @@ public class QualificationDetails extends Fragment {
                 Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
                 return;
             }
-//            Log.v("MyApp", getClass().toString() +"on post ");
-//            Log.v("MyApp", getClass().toString() +"GetUserInfoQualification College : " + strJSON);
 
             try {
                 JSONObject jsonObject = new JSONObject(strJSON);

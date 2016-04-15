@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.swiftintern.Fragment.QualificationDetails"
-    android:background="#ffffff"
+    android:background="#FFFFFF"
     android:focusable="true"
     android:focusableInTouchMode="true" >
 
@@ -15,33 +15,26 @@
         android:orientation="vertical"
         android:id="@+id/profile_layout">
 
-        <LinearLayout
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:id="@+id/linearlayout_userinfo_header"
-            android:background="#E0E0E0"
-            >
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
+            android:layout_margin="7dp"
+            android:id="@+id/getWork">
+            <LinearLayout
+                style="@style/Widget.CardContent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp">
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/textheader_userinfo_name"
-                    android:text="Enter Your Qualification Details"
-                    android:textSize="25sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginLeft="15dp" />
+                    android:text="Enter New Qualification Record"
+                    android:id="@+id/textLocation"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
-            </RelativeLayout>
-        </LinearLayout>
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
 
         <View
             android:layout_width="match_parent"
@@ -51,47 +44,22 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/scrollView">
-            <RelativeLayout
+            android:id="@+id/scrollViewQuali">
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="vertical">
-                <RelativeLayout
+                android:layout_margin="3dp"
+                android:id="@+id/getWorkInfo">
+                <LinearLayout
+                    style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/relative__userinfo_qualification">
+                    android:orientation="vertical">
 
-                    <TextView
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/text_userinfo_university"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/text_userinfo_personal"
-                        android:text="Qualification Details"
-                        android:textColor="#6D4C41"
-                        android:layout_marginLeft="6dp"
-                        android:layout_marginTop="6dp"
-                        android:textSize="15sp"/>
-
-                    <View
-                        android:layout_width="67dp"
-                        android:layout_height="1dp"
-                        android:layout_marginLeft="3dp"
-                        android:layout_below="@id/text_userinfo_personal"
-                        android:background="@android:color/darker_gray"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linear_userinfo_university"
-                        android:orientation="horizontal"
-                        android:layout_below="@+id/text_userinfo_personal">
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/text_userinfo_university"
-                            android:text="University"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="5dp"
-                            android:textSize="20sp" />
+                        android:layout_height="wrap_content">
 
                         <AutoCompleteTextView
                             android:layout_width="fill_parent"
@@ -104,23 +72,12 @@
                             android:imeOptions="actionNext"
                             android:inputType="text"
                             android:nextFocusDown="@+id/text_userinfo_degree_name"/>
+                    </android.support.design.widget.TextInputLayout>
 
-                    </LinearLayout>
-
-                    <LinearLayout
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/text_userinfo_degree"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linear_userinfo_degree"
-                        android:orientation="horizontal"
-                        android:layout_below="@+id/linear_userinfo_university">
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/text_userinfo_degree"
-                            android:text="Degree"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="5dp"
-                            android:textSize="20sp"/>
+                        android:layout_height="wrap_content">
 
                         <EditText
                             android:layout_width="fill_parent"
@@ -133,23 +90,12 @@
                             android:imeOptions="actionNext"
                             android:inputType="text"
                             android:nextFocusDown="@+id/text_userinfo_major_name"/>
+                    </android.support.design.widget.TextInputLayout>
 
-                    </LinearLayout>
-
-                    <LinearLayout
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/text_userinfo_major"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linear_userinfo_major"
-                        android:orientation="horizontal"
-                        android:layout_below="@+id/linear_userinfo_degree">
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/text_userinfo_major"
-                            android:text="Major"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="5dp"
-                            android:textSize="20sp"/>
+                        android:layout_height="wrap_content">
 
                         <EditText
                             android:layout_width="fill_parent"
@@ -163,22 +109,13 @@
                             android:inputType="text"
                             android:nextFocusDown="@+id/text_userinfo_gpa_name"/>
 
-                    </LinearLayout>
 
-                    <LinearLayout
+                    </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/text_userinfo_gpa"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linear_userinfo_gpa"
-                        android:orientation="horizontal"
-                        android:layout_below="@+id/linear_userinfo_major">
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/text_userinfo_gpa"
-                            android:text="GPA"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="5dp"
-                            android:textSize="20sp"/>
+                        android:layout_height="wrap_content">
 
                         <EditText
                             android:layout_width="fill_parent"
@@ -191,22 +128,13 @@
                             android:imeOptions="actionNext"
                             android:inputType="numberDecimal"
                             android:nextFocusDown="@+id/text_userinfo_year_name"/>
-                    </LinearLayout>
 
-                    <LinearLayout
+                    </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/text_userinfo_year"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linear_userinfo_year"
-                        android:orientation="horizontal"
-                        android:layout_below="@+id/linear_userinfo_gpa">
-                        <TextView
-                            android:layout_width="130dp"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/text_userinfo_year"
-                            android:text="Passing Year"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="5dp"
-                            android:textSize="20sp"/>
+                        android:layout_height="wrap_content">
 
                         <EditText
                             android:layout_width="fill_parent"
@@ -218,22 +146,20 @@
                             android:hint="Enter Passing Year"
                             android:imeOptions="actionSend"
                             android:inputType="number"/>
-                    </LinearLayout>
+                    </android.support.design.widget.TextInputLayout>
 
-                </RelativeLayout>
-
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Submit"
-                    android:textSize="25sp"
-                    android:textStyle="bold"
-                    android:id="@+id/button_submit_userinfo"
-                    android:layout_below="@id/relative__userinfo_qualification"
-                    android:theme="@style/ThemeOverlay.MyDarkButton" />
-            </RelativeLayout>
-
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
         </ScrollView>
     </LinearLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        android:textSize="25sp"
+        android:id="@+id/button_submit_userinfo"
+        android:layout_gravity="bottom"
+        android:theme="@style/ThemeOverlay.MyDarkButton" />
 
 </FrameLayout>
