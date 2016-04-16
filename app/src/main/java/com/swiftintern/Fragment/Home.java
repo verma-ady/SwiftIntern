@@ -1,6 +1,7 @@
 package com.swiftintern.Fragment;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -24,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.swiftintern.Activity.ViewIntern;
 import com.swiftintern.Helper.DummyContent;
 import com.swiftintern.Helper.EndlessRecyclerViewScrollListener;
 import com.swiftintern.Helper.RecyclerItemClickListener;
@@ -457,16 +459,17 @@ public class Home extends Fragment {
                 return ;
             }
 
-            ViewIntern viewIntern = new ViewIntern();
-            android.support.v4.app.FragmentManager fragmentManager = getFragmentManager();
-            android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.fragment,viewIntern);
-            fragmentTransaction.addToBackStack(null);
+//            ViewIntern viewIntern = new ViewIntern();
+//            android.support.v4.app.FragmentManager fragmentManager = getFragmentManager();
+//            android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//            fragmentTransaction.add(R.id.fragment,viewIntern);
+//            fragmentTransaction.addToBackStack(null);
 
             Bundle stringJSON = new Bundle();
             stringJSON.putString("JSON", strJSON);
-            viewIntern.setArguments(stringJSON);
-            fragmentTransaction.commit();
+            Intent intent = new Intent (getActivity(), ViewIntern.class);
+            intent.putExtra("Intern", stringJSON);
+            startActivity(intent);
         }
     }
 

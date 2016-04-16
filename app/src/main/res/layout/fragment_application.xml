@@ -24,7 +24,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Enter New Work Record"
+                    android:text="Your Applications"
                     android:id="@+id/text_app_head"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 

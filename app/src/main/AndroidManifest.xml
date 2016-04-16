@@ -57,12 +57,14 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
-        <activity android:name=".Activity.AboutUs"
-            android:parentActivityName=".Activity.MainActivity">
+        <activity
+            android:name=".Activity.AboutUs"
+            android:parentActivityName=".Activity.MainActivity" >
             <meta-data
                 android:name="PARENT_ACTIVITY"
-                android:value="com.swiftintern.Activity.MainActivity"/>
+                android:value="com.swiftintern.Activity.MainActivity" />
+        </activity>
+        <activity android:name=".Activity.ViewIntern" >
         </activity>
     </application>
 

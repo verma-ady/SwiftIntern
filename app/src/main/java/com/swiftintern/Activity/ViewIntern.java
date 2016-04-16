@@ -1,20 +1,18 @@
-package com.swiftintern.Fragment;
+package com.swiftintern.Activity;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.v4.app.Fragment;
+import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,36 +38,40 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 
-public class ViewIntern extends Fragment {
-    public ViewIntern() {
-        // Required empty public constructor
-    }
-    TextView name, title, eligibility, category, duration, location, stipend;
+import de.hdodenhof.circleimageview.CircleImageView;
+
+public class ViewIntern extends AppCompatActivity {
+
+
+    TextView title, eligibility, category, duration, location, stipend;
     String myJSON;
     Button button;
     SharedPreferences sharedPreferences;
     String OrgID, OppID;
-    View view;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_view_intern);
+        sharedPreferences = getApplicationContext().getSharedPreferences("UserInfo", getApplicationContext().MODE_PRIVATE);
 
-        view = inflater.inflate(R.layout.fragment_view_intern, container, false);
-        sharedPreferences = getContext().getSharedPreferences("UserInfo", getContext().MODE_PRIVATE);
-        getActivity().overridePendingTransition(R.anim.pull_in_left, R.anim.hold);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        CollapsingToolbarLayout collapsingToolbar =
+                (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
-        Bundle extras = getArguments();
+        Bundle extras = getIntent().getBundleExtra("Intern");
         myJSON = extras.getString("JSON");
-        name = (TextView) view.findViewById(R.id.text_name);
-        title = (TextView) view.findViewById(R.id.text_title_name);
-        eligibility = (TextView) view.findViewById(R.id.text_eligibility_name);
-        category = (TextView) view.findViewById(R.id.text_category_name);
-        duration = (TextView) view.findViewById(R.id.text_duration_name);
-        location = (TextView) view.findViewById(R.id.text_location_name);
-        stipend = (TextView) view.findViewById(R.id.text_payment_name);
-        button = (Button) view.findViewById(R.id.button_viewintern_apply);
+//        name = (TextView) findViewById(R.id.text_name);
+        title = (TextView) findViewById(R.id.text_title_name);
+        eligibility = (TextView) findViewById(R.id.text_eligibility_name);
+        category = (TextView) findViewById(R.id.text_category_name);
+        duration = (TextView) findViewById(R.id.text_duration_name);
+        location = (TextView) findViewById(R.id.text_location_name);
+        stipend = (TextView) findViewById(R.id.text_payment_name);
+        button = (Button) findViewById(R.id.button_viewintern_apply);
 
         if(sharedPreferences.getString("resumeID", null)==null){
             button.setText("Upload Resume and Apply");
@@ -83,11 +85,11 @@ public class ViewIntern extends Fragment {
             JSONObject jsonObjectmain = new JSONObject(myJSON);
             JSONObject jsonObjectorganisation = jsonObjectmain.getJSONObject("organization");
             JSONObject jsonObjectoppurtunity = jsonObjectmain.getJSONObject("opportunity");
-            name.setText(jsonObjectorganisation.getString("_name"));
-            title.setText(jsonObjectoppurtunity.getString("_title"));
+
+            collapsingToolbar.setTitle(jsonObjectoppurtunity.getString("_title"));
             eligibility.setText(jsonObjectoppurtunity.getString("_eligibility"));
             category.setText(jsonObjectoppurtunity.getString("_category"));
-            duration.setText(jsonObjectoppurtunity.getString("_duration"));
+            duration.setText(jsonObjectoppurtunity.getString("_duration") );
             location.setText(jsonObjectoppurtunity.getString("_location"));
             stipend.setText(jsonObjectoppurtunity.getString("_payment"));
             OrgID = jsonObjectoppurtunity.getString("_organization_id");
@@ -98,12 +100,11 @@ public class ViewIntern extends Fragment {
         }
 
         applyButton();
-        return view;
     }
 
     private void setCompanyPic(){
         GetCompanyBitmap getCompanyBitmap = new GetCompanyBitmap();
-        Log.v("MyApp", getClass().toString() + "GetBitmap URL: " + "http://swiftintern.com/organizations/photo/"+ OrgID );
+        Log.v("MyApp", getClass().toString() + "GetBitmap URL: " + "http://swiftintern.com/organizations/photo/" + OrgID);
         getCompanyBitmap.execute();
     }
 
@@ -136,7 +137,7 @@ public class ViewIntern extends Fragment {
 
         @Override
         protected void onPostExecute(Bitmap b ) {
-            ImageView iv = (ImageView) view.findViewById(R.id.imageView_viewIntern_company);
+            CircleImageView iv = (CircleImageView) findViewById(R.id.imageView_viewIntern_company);
             iv.setImageBitmap(b);
             super.onPostExecute(b);
         }
@@ -148,7 +149,7 @@ public class ViewIntern extends Fragment {
             public void onClick(View v) {
                 Log.v("MyApp", getClass().toString() + " ApplyButton()");
                 if (button.getContentDescription().equals("upload")) {
-                    Intent intent = new Intent(getActivity(), FilePickerActivity.class);
+                    Intent intent = new Intent(ViewIntern.this, FilePickerActivity.class);
                     startActivityForResult(intent, 1);
                 } else {
                     //directly apply
@@ -169,7 +170,7 @@ public class ViewIntern extends Fragment {
             if(substr.equals("pdf")) {
                 upload(FilePath);
             } else {
-                Toast.makeText(getContext(), "Not a PDF File", Toast.LENGTH_SHORT ).show();
+                Toast.makeText(getApplicationContext(), "Not a PDF File", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -181,22 +182,22 @@ public class ViewIntern extends Fragment {
             File file = new File(dir);
             if( file.length()/1048576 > 9 ){
                 Log.v("MyApp", getClass().toString() + " File Size : " + file.length() );
-                Toast.makeText(getContext(), "File Size Larger than 9MB. Try Again", Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext(), "File Size Larger than 9MB. Try Again", Toast.LENGTH_LONG);
                 return;
             }
             String encode = encodeFileToBase64Binary(file);
 
             HTTPFileUpload hfu = new HTTPFileUpload("http://swiftintern.com/app/upload",
-                    sharedPreferences.getString("token", null), encode, OppID , getContext());
+                    sharedPreferences.getString("token", null), encode, OppID , getApplicationContext());
             hfu.Send_Now();
 
         } catch (FileNotFoundException e ) {
             Log.v("MyApp", getClass().toString() +"Upload File Not Found");
-            Toast.makeText(getActivity(), "Upload Failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Upload Failed", Toast.LENGTH_SHORT).show();
             // Error: File not found
         } catch (IOException e ){
             Log.v("MyApp", getClass().toString() +"Upload IOException");
-            Toast.makeText(getActivity(), "Upload Failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Upload Failed", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -313,21 +314,21 @@ public class ViewIntern extends Fragment {
 
 
             if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-                Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
                 return  ;
             }
 
             if ( strJSON=="null_internet" ){
-                Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
                 return ;
             }
 
             try {
                 JSONObject jsonObject = new JSONObject(strJSON);
                 if(jsonObject.getString("success").equals("true")){
-                    Toast.makeText(getContext(), "Applied for Internship", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Applied for Internship", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getContext(), "Failed to applied for Internship", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Failed to applied for Internship", Toast.LENGTH_LONG).show();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
