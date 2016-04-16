@@ -26,7 +26,6 @@ import com.swiftintern.R;
 import com.swiftintern.Fragment.ShowQualification;
 import com.swiftintern.Fragment.ShowWorkDetails;
 import com.swiftintern.Fragment.search;
-import com.swiftintern.Fragment.studentprofile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,8 +37,6 @@ public class MainActivity extends AppCompatActivity
 
     search Search;
     com.swiftintern.Fragment.Home Home;
-    studentprofile studentProfile;
-    AboutUs aboutUs;
     Application application;
     ShowQualification showQualification;
     ShowWorkDetails showWorkDetails;
