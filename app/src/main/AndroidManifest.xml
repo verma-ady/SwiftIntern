@@ -66,6 +66,8 @@
         </activity>
         <activity android:name=".Activity.ViewIntern" >
         </activity>
+        <activity android:name=".Activity.StudentProfile" >
+        </activity>
     </application>
 
 </manifest>
