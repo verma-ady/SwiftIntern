@@ -99,7 +99,15 @@ public class Home extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.v("MyApp", "onResume home");
         j=0;
+    }
+
+    @Override
+    public void onPause() {
+        getCompanyBitmapList.cancel(true);
+        super.onPause();
+        Log.v("MyApp", "onPause home");
     }
 
     void RecyclerListener(){
@@ -335,6 +343,7 @@ public class Home extends Fragment {
 
             try {
                 for( ; j<num ; j++ ) {
+                    Log.v("MyApp", getClass().toString()+ " " + isCancelled() );
                     if(isCancelled()){
                         Log.v("MyApp", getClass().toString() + "Cancelled in doInBackground");
                         return null;
@@ -345,8 +354,10 @@ public class Home extends Fragment {
                     connection.connect();
                     input = connection.getInputStream();
                     myBitmap = BitmapFactory.decodeStream(input);
-                    Log.v("Bitmap", getClass().toString() + "returned");
+                    Log.v("MyApp", "Bitmap " + getClass().toString() + " returned");
                     companyBitmap.add(myBitmap);
+//                    dummyContent.ITEMS.get(j).setBitmap(myBitmap);
+//                    rvAdapter.notifyItemChanged(j);
                 }
                 return myBitmap;
             } catch ( IOException e ){
