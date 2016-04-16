@@ -229,17 +229,20 @@ public class search extends Fragment {
             @Override
             public void onItemClick(View v, int position) {
                 search_api search = new search_api();
+                cat_intern = category[position];
                 if(spinner_text==null){
-                  locationCard.performClick();
+                    spinner_text = "";
+                    dialog = new ProgressDialog(getActivity());
+                    dialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
+                    dialog.setMessage("Searching for " + cat_intern + " Internships");
+                    dialog.show();
                 } else {
                     dialog = new ProgressDialog(getActivity());
                     dialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
-                    dialog.setMessage("Connecting To SwiftIntern");
+                    dialog.setMessage("Searching for " + cat_intern + " Internships in " + spinner_text );
                     dialog.show();
-                    cat_intern = category[position];
-                    search.execute(cat_intern, spinner_text);
                 }
-
+                search.execute(cat_intern, spinner_text);
             }
         }));
 
