@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.swiftintern.Fragment.Application;
-import com.swiftintern.Fragment.AboutUs;
 import com.swiftintern.Fragment.Home;
 import com.swiftintern.Helper.HTTPFileUpload;
 import com.swiftintern.R;
@@ -195,12 +194,8 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.commit();
 
         } else if (id == R.id.nav_about_us) {
-            Toast.makeText(getApplicationContext(), "About Us", Toast.LENGTH_SHORT).show();
-            aboutUs = new AboutUs();
-            android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
-            android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.fragment, aboutUs);
-            fragmentTransaction.commit();
+            Intent intent = new Intent(MainActivity.this, com.swiftintern.Activity.AboutUs.class);
+            startActivity(intent);
         } else if (id == R.id.nav_app) {
             Toast.makeText(getApplicationContext(), "Applications", Toast.LENGTH_SHORT).show();
             application = new Application();

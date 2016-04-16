@@ -79,10 +79,6 @@ public class ShowQualification extends Fragment {
 
         cardsAppContent.clear();
 
-//        cardsAppContent.addItem(new CardQualificationContent.DummyItem("Orga1", "cat1", "loc1", "sti1", "sta1"));
-//        cardsAppContent.addItem(new CardQualificationContent.DummyItem("Orga2", "cat2", "loc2", "sti2", "sta2"));
-
-
         SearchUserQuali searchUserQuali = new SearchUserQuali();
         searchUserQuali.execute();
 
