@@ -54,14 +54,14 @@ public class Home extends Fragment {
     RecyclerView recyclerView;
     DummyContent dummyContent = new DummyContent();
     RVAdapter rvAdapter;
-    Integer pagenumber = 1, i, j=0, count, num=0/*number of intern loaded*/;
+    Integer pagenumber, i, j, count, num/*number of intern loaded*/;
     View view;
     ProgressDialog dialog_card, dialog_org, dialog_page;
     SharedPreferences sharedPreferences;
     ArrayList<Bitmap> companyBitmap;
     ArrayList<Integer> org_id;
 
-    GetCompanyBitmapList getCompanyBitmapList = new GetCompanyBitmapList();
+    GetCompanyBitmapList getCompanyBitmapList;
     LinearLayoutManager linearLayoutManager;
 
     @Override
@@ -75,6 +75,8 @@ public class Home extends Fragment {
         Log.v("MyApp", getClass().toString() +"Token is " + sharedPreferences.getString("token", "null"));
         companyBitmap = new ArrayList<>();
         org_id = new ArrayList<>();
+        num = 0;
+        pagenumber = 1;
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycle);
         recyclerView.setHasFixedSize(true);
@@ -101,6 +103,8 @@ public class Home extends Fragment {
         super.onResume();
         Log.v("MyApp", "onResume home");
         j=0;
+        num = 0;
+        pagenumber  = 1;
     }
 
     @Override
@@ -339,12 +343,12 @@ public class Home extends Fragment {
         @Override
         protected Bitmap doInBackground(Void... params) {
 //            companyBitmap = new Bitmap[num];
-
+            Log.v("MyApp", getClass().toString() + " num is " + num);
             try {
                 for( ; j<num ; j++ ) {
                     Log.v("MyApp", getClass().toString()+ " " + isCancelled() );
                     if(isCancelled()){
-                        Log.v("MyApp", getClass().toString() + "Cancelled in doInBackground");
+                        Log.v("MyApp", getClass().toString() + "Cancelled in doInBackground ");
                         return null;
                     }
                     URL url = new URL("http://swiftintern.com/organizations/photo/" + org_id.get(j));
@@ -355,8 +359,6 @@ public class Home extends Fragment {
                     myBitmap = BitmapFactory.decodeStream(input);
                     Log.v("MyApp", "Bitmap " + getClass().toString() + " returned");
                     companyBitmap.add(myBitmap);
-//                    dummyContent.ITEMS.get(j).setBitmap(myBitmap);
-//                    rvAdapter.notifyItemChanged(j);
                 }
                 return myBitmap;
             } catch ( IOException e ){
