@@ -130,7 +130,6 @@ public class Home extends Fragment {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
                 if (pagenumber != (count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
-
                     pagenumber++;
                     SearchApi searchApi = new SearchApi();
                     searchApi.execute();

@@ -41,6 +41,7 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class search_result extends Fragment {
@@ -53,9 +54,10 @@ public class search_result extends Fragment {
     DummyContent dummyContent = new DummyContent();
     RVAdapter rvAdapter;
     TextView head;
-    Integer pagenumber = 1, count, num;
+    Integer pagenumber = 1, count, num=0, cnt = 0;
     LinearLayoutManager linearLayoutManager;
-    String myJSON, place, category, org_id[];
+    String myJSON, place, category;
+    ArrayList<Integer> org_id = new ArrayList<>();
     ProgressDialog dialog_card, dialog_org, dialog_page;
     GetCompanyBitmapList getCompanyBitmapList = new GetCompanyBitmapList();
 
@@ -74,13 +76,19 @@ public class search_result extends Fragment {
         myJSON = extras.getString("JSON");
         place = extras.getString("place");
         category = extras.getString("category");
-        head.setText(category + " Internships at " + place);
+        if(place.equals("")){
+            head.setText(category + " Internships");
+        } else {
+            head.setText(category + " Internships at " + place);
+        }
+
 
         dialog_card = new ProgressDialog(getActivity());
         dialog_card.setProgressStyle(android.R.attr.progressBarStyleSmall);
         dialog_card.setMessage("Connecting To SwiftIntern");
         dialog_card.show();
 
+        int temp=0;
         try {
             JSONObject JSON = new JSONObject( myJSON);
 
@@ -94,22 +102,19 @@ public class search_result extends Fragment {
             }
             else {
                 if ( count==10 || pagenumber!=(count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
-                    num=10;
+                    temp=10;
                 }
                 else{
-                    num=count%10;
+                    temp=count%10;
                 }
 
-
-                org_id = new String[num];
                 JSONArray opp = JSON.getJSONArray("opportunities");
-                for (int i = 0; i < num; i++) {
+                for (int i = 0; i < temp; i++) {
                     JSONObject obj = opp.getJSONObject(i);
 
                     dummyContent.addItem(new DummyContent.DummyItem(obj.getString("_title"), obj.getString("_eligibility"),
                             obj.getString("_id"), obj.getString("_organization_id"), null));
-                    org_id[i]= obj.getString("_organization_id");
-                    Log.v("MyApp", getClass().toString() + "OrgID " + i + "  " + org_id[i] );
+                    org_id.add(obj.getInt("_organization_id"));
                 }
             }
         } catch (JSONException e) {
@@ -117,6 +122,7 @@ public class search_result extends Fragment {
             e.printStackTrace();
         }
 
+        num = num + temp;
         rvAdapter = new RVAdapter( dummyContent.ITEMS);
         recyclerView.setAdapter(rvAdapter);
         dialog_card.dismiss();
@@ -129,6 +135,12 @@ public class search_result extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        cnt = 0;
     }
 
     void RecyclerListener(){
@@ -153,7 +165,7 @@ public class search_result extends Fragment {
                 if (pagenumber != (count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
                     pagenumber++;
                     SearchApi searchApi = new SearchApi();
-                    searchApi.execute();
+                    searchApi.execute(category, place);
                     Log.v("MyApp", "Result next" + pagenumber);
                 } else
                     Toast.makeText(getActivity(), "Already at last Page", Toast.LENGTH_SHORT).show();
@@ -295,13 +307,8 @@ public class search_result extends Fragment {
                 dialog_page.dismiss();
             }
 
-            if( dialog_card!=null && dialog_card.isShowing() ) {
-                Log.v( "MyApp", getClass().toString() +"Home card showing");
-                dialog_card.dismiss();
-            }
-
             if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-                Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Not Able to connect", Toast.LENGTH_SHORT).show();
                 return  ;
             }
 
@@ -310,32 +317,38 @@ public class search_result extends Fragment {
                 return ;
             }
 
+            int temp = 0;
             try {
-                dummyContent.ITEMS.clear();
                 JSONObject JSON = new JSONObject( strJSON);
                 JSONArray opp = JSON.getJSONArray("opportunities");
 
                 if (pagenumber!=(count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
-                    num=10;
+                    temp=10;
                 }
                 else{
-                    num=count%10;
+                    temp=count%10;
                 }
-                org_id = new String[num];
-                for(int i=0; i<num ; i++ ){
+
+                for(int i=0; i<temp ; i++ ){
                     JSONObject obj = opp.getJSONObject(i);
                     dummyContent.addItem(new DummyContent.DummyItem(obj.getString("_title"),
                             obj.getString("_eligibility"), obj.getString("_id"), obj.getString("_organization_id")
                             ,null));
-                    org_id[i] = obj.getString("_organization_id");
+                    org_id.add(obj.getInt("_organization_id"));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            rvAdapter = (RVAdapter) recyclerView.getAdapter();
-            rvAdapter = new RVAdapter(dummyContent.ITEMS);
-            recyclerView.setAdapter(rvAdapter);
+            if(pagenumber==1) {
+                rvAdapter = (RVAdapter) recyclerView.getAdapter();
+                rvAdapter.dummy.ITEMS = dummyContent.ITEMS;
+                recyclerView.setAdapter(rvAdapter);
+            } else {
+                Log.v("MyApp", getClass().toString() + " notified after loading interns data" );
+                rvAdapter.notifyItemRangeInserted(num, dummyContent.ITEMS.size()-1 );
+            }
+            num = num + temp ;
             getCompanyBitmapList = new GetCompanyBitmapList();
             getCompanyBitmapList.execute();
         }
@@ -449,6 +462,7 @@ public class search_result extends Fragment {
 
     public class GetCompanyBitmapList extends AsyncTask<Void, Void, Bitmap> {
 
+        int temp = cnt;
         public Bitmap myBitmap;
         public InputStream input = null;
         HttpURLConnection connection = null;
@@ -456,16 +470,16 @@ public class search_result extends Fragment {
         @Override
         protected Bitmap doInBackground(Void... params) {
             try {
-                for( int i=0 ; i<num ; i++ ) {
-                    URL url = new URL("http://swiftintern.com/organizations/photo/" + org_id[i]);
-                    Log.v("MyApp", getClass().toString() +"   http://swiftintern.com/organizations/photo/" + org_id[i] );
+                for(  ; cnt<num ; cnt++ ) {
+                    URL url = new URL("http://swiftintern.com/organizations/photo/" + org_id.get(cnt));
+                    Log.v("MyApp", getClass().toString() +"   http://swiftintern.com/organizations/photo/" + org_id.get(cnt) );
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setDoInput(true);
                     connection.connect();
                     input = connection.getInputStream();
                     myBitmap = BitmapFactory.decodeStream(input);
                     Log.v("MyApp", getClass().toString() +"Bitmap returned");
-                    dummyContent.ITEMS.get(i).setBitmap(myBitmap);
+                    dummyContent.ITEMS.get(cnt).setBitmap(myBitmap);
                 }
                 return myBitmap;
             } catch ( IOException e ){
@@ -485,9 +499,8 @@ public class search_result extends Fragment {
                 return;
             }
 
-            rvAdapter = (RVAdapter) recyclerView.getAdapter();
-            rvAdapter = new RVAdapter(dummyContent.ITEMS);
-            recyclerView.setAdapter(rvAdapter);
+            rvAdapter.notifyItemRangeChanged(temp, cnt-1 );
+            Log.v("MyApp", getClass().toString() + " Updated ");
 
         }
     }//getbitmap

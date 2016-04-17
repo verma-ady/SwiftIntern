@@ -183,12 +183,6 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         } else if (id == R.id.nav_profile) {
-//            Toast.makeText(getApplicationContext(), "View Profile", Toast.LENGTH_SHORT).show();
-//            studentProfile = new studentprofile();
-//            android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
-//            android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//            fragmentTransaction.replace(R.id.fragment, studentProfile);
-//            fragmentTransaction.commit();
             Intent intent = new Intent(MainActivity.this, StudentProfile.class);
             startActivity(intent);
 
