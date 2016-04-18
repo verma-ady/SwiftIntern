@@ -6,13 +6,16 @@ android {
 
     repositories {
         mavenCentral()
+        maven{
+            url  "http://dl.bintray.com/lukaville/maven"
+        }
     }
 
     defaultConfig {
         applicationId "com.swiftintern"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 3
+        versionCode 4
         versionName "1.2"
 
     }
@@ -21,12 +24,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-}
-
-repositories {
-    maven {
-        url  "http://dl.bintray.com/lukaville/maven"
     }
 }
 
@@ -45,4 +42,5 @@ dependencies {
     compile 'com.nbsp:library:1.02'
     compile 'com.mcxiaoke.volley:library:1.0.15@aar'
     compile 'com.cocosw:bottomsheet:1.+@aar'
+    compile 'com.nononsenseapps:filepicker:2.5.2'
 }

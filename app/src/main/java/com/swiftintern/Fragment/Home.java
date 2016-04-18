@@ -165,23 +165,6 @@ public class Home extends Fragment {
             holder.text.setText(dummy.ITEMS.get(position).id);
             holder.subtext.setText(dummy.ITEMS.get(position).content);
             holder.imageView.setImageBitmap(dummy.ITEMS.get(position).image);
-            setAnimation(holder.itemView, position);
-        }
-
-        private void setAnimation(View viewToAnimate, int position)
-        {
-            // If the bound view wasn't previously displayed on screen, it's animated
-            int first = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
-            int last = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-
-            if (position > last) // scroll down
-            {
-                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.pull_in_left);
-                viewToAnimate.startAnimation(animation);
-            } else if ( position<first ){ // scroll up
-                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.pull_in_right);
-                viewToAnimate.startAnimation(animation);
-            }
         }
 
         @Override
