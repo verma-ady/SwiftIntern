@@ -188,10 +188,6 @@ public class Home extends Fragment {
                 subtext = (TextView) itemView.findViewById(R.id.subtext_cards);
                 imageView = (ImageView) itemView.findViewById(R.id.image_for_search);
             }
-
-            public void  clearAnimation() {
-                cardView.clearAnimation();
-            }
         }
     }
 
