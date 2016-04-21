@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +19,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
+import com.swiftintern.Helper.AppController;
 import com.swiftintern.Helper.HTTPFileUpload;
 import com.swiftintern.R;
 
@@ -48,6 +52,13 @@ public class ViewIntern extends AppCompatActivity {
     Button button;
     SharedPreferences sharedPreferences;
     String OrgID, OppID;
+    private final String BASE = "http://swiftintern.com";
+    private final String FIND_INTERN = "Home.json";
+    private final String ORGANISATION = "organizations";
+    private final String PHOTOS = "photo";
+    private final String INTERN = "internship";
+    private final String OPPORTUNITY = "opportunity";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,45 +114,25 @@ public class ViewIntern extends AppCompatActivity {
     }
 
     private void setCompanyPic(){
-        GetCompanyBitmap getCompanyBitmap = new GetCompanyBitmap();
-        Log.v("MyApp", getClass().toString() + "GetBitmap URL: " + "http://swiftintern.com/organizations/photo/" + OrgID);
-        getCompanyBitmap.execute();
-    }
+        Uri uri = Uri.parse(BASE).buildUpon().appendPath(ORGANISATION).appendPath(PHOTOS).appendPath(OrgID).build();
+        ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 
-    public class GetCompanyBitmap extends AsyncTask<Void, Void, Bitmap> {
+        // If you are using normal ImageView
+        imageLoader.get(uri.toString(), new ImageLoader.ImageListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("MyApp", "Image Load Error: " + error.getMessage());
+            }
 
-        public Bitmap myBitmap;
-        public InputStream input = null;
-        HttpURLConnection connection = null;
-
-        @Override
-        protected Bitmap doInBackground(Void... params) {
-            try {
-                URL url = new URL("http://swiftintern.com/organizations/photo/" + OrgID);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);
-                connection.connect();
-                input = connection.getInputStream();
-                myBitmap = BitmapFactory.decodeStream(input);
-                Log.e("Bitmap", "returned");
-
-            } catch ( IOException e ){
-                e.printStackTrace();
-            } finally {
-                if( connection!=null ){
-                    //no connection
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean arg1) {
+                if (response.getBitmap() != null) {
+                    CircleImageView iv = (CircleImageView) findViewById(R.id.imageView_viewIntern_company);
+                    iv.setImageBitmap(response.getBitmap());
                 }
             }
-            return myBitmap;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap b ) {
-            CircleImageView iv = (CircleImageView) findViewById(R.id.imageView_viewIntern_company);
-            iv.setImageBitmap(b);
-            super.onPostExecute(b);
-        }
-    }//getbitmap
+        });
+    }
 
     public void applyButton(){
         button.setOnClickListener(new View.OnClickListener() {
