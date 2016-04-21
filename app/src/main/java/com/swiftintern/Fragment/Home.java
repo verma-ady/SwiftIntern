@@ -5,9 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
@@ -38,14 +36,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.ConnectException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,14 +48,16 @@ public class Home extends Fragment {
     private final String FIND_INTERN = "Home.json";
     private final String ORGANISATION = "organizations";
     private final String PHOTOS = "photo";
-    private final String  tag_string_req = "string_req";
+    private final String INTERN = "internship";
+    private final String OPPORTUNITY = "opportunity";
+    private final String VOLLEY_REQUEST = "string_req";
 
     RecyclerView recyclerView;
     DummyContent dummyContent = new DummyContent();
     RVAdapter rvAdapter;
     Integer pagenumber, i, j, count, num/*number of intern loaded*/;
     View view;
-    ProgressDialog dialog_card, dialog_org, dialog_page, progressDialog;
+    ProgressDialog progressDialog;
     SharedPreferences sharedPreferences;
     ArrayList<Bitmap> companyBitmap;
     ArrayList<Integer> org_id;
@@ -101,19 +93,34 @@ public class Home extends Fragment {
         Uri uri = Uri.parse(BASE).buildUpon().appendPath(FIND_INTERN)
                 .appendQueryParameter("page", pagenumber.toString()).build();
 
-        getIntern(uri.toString());
+        GetIntern(uri.toString());
         RecyclerListener();
 
         return view;
     }
 
-    private void getIntern (String url) {
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.v("MyApp", "onResume home");
+        j=0;
+        num = 0;
+        pagenumber  = 1;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        AppController.getInstance().cancelPendingRequests(VOLLEY_REQUEST);
+        Log.v("MyApp", "onPause home");
+    }
+
+    private void GetIntern(String url) {
 
         StringRequest strReq = new StringRequest(Request.Method.GET,
                 url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-//                Log.d("MyApp", response.toString());
                 FillIntern(response.toString());
             }
         }, new Response.ErrorListener() {
@@ -125,7 +132,7 @@ public class Home extends Fragment {
         });
 
         // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
 
     }
 
@@ -184,6 +191,7 @@ public class Home extends Fragment {
             @Override
             public void onResponse(ImageLoader.ImageContainer response, boolean arg1) {
                 if (response.getBitmap() != null) {
+                    Log.d("MyApp", "POS:" + pos);
                     dummyContent.ITEMS.get(pos).setBitmap(response.getBitmap());
                     rvAdapter.notifyItemChanged(pos);
                 }
@@ -191,28 +199,37 @@ public class Home extends Fragment {
         });
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.v("MyApp", "onResume home");
-        j=0;
-        num = 0;
-        pagenumber  = 1;
-    }
+    private void SearchIntern (String url){
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+//                Log.d("MyApp", response.toString());
+                Bundle stringJSON = new Bundle();
+                stringJSON.putString("JSON", response.toString());
+                Intent intent = new Intent (getActivity(), ViewIntern.class);
+                intent.putExtra("Intern", stringJSON);
+                startActivity(intent);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("MyApp", "Error: " + error.getMessage());
+                progressDialog.dismiss();
+            }
+        });
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.v("MyApp", "onPause home");
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
-
     void RecyclerListener(){
         recyclerView.addOnItemTouchListener
                 (new RecyclerItemClickListener(getActivity(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View v, int position) {
-                        SearchOrganisation searchOrganisation = new SearchOrganisation();
-                        searchOrganisation.execute(dummyContent.ITEMS.get(position).opp_id);
+                        Uri uri = Uri.parse(BASE).buildUpon().appendPath(INTERN).appendPath(OPPORTUNITY)
+                                .appendPath(dummyContent.ITEMS.get(position).opp_id+".json").build();
+                        SearchIntern(uri.toString());
                     }
                 }
                 ));
@@ -224,7 +241,7 @@ public class Home extends Fragment {
                     pagenumber++;
                     Uri uri = Uri.parse(BASE).buildUpon().appendPath(FIND_INTERN)
                             .appendQueryParameter("page", pagenumber.toString()).build();
-                    getIntern(uri.toString());
+                    GetIntern(uri.toString());
                 } else
                     Toast.makeText(getActivity(), "Already at last Page", Toast.LENGTH_SHORT).show();
             }
@@ -277,102 +294,4 @@ public class Home extends Fragment {
             }
         }
     }
-    
-    public class SearchOrganisation extends AsyncTask<String, Void, String > {
-
-        //        String LOG_CAT = "MyApp";
-        @Override
-        protected String doInBackground(String... params) {
-            String error=null;
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader bufferedReader = null;
-
-            String base = "http://swiftintern.com/internship/opportunity";
-            String find;
-            URL url = null;
-            try {
-
-                find = params[0] + ".json";
-                Uri uri = Uri.parse(base).buildUpon().appendPath(find).build();
-
-                url= new URL(uri.toString());
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-
-                StringBuffer buffer = new StringBuffer();
-                if(inputStream==null){
-                    return "null_inputstream";
-                }
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line ;
-
-                while ( (line=bufferedReader.readLine())!=null ){
-                    buffer.append(line + '\n');
-                }
-
-                if (buffer.length() == 0) {
-                    return "null_inputstream";
-                }
-
-                String stringJSON = buffer.toString();
-//                Log.v(LOG_CAT,getClass().toString() + stringJSON );
-                return stringJSON;
-            } catch (UnknownHostException | ConnectException e) {
-                error = "null_internet" ;
-                e.printStackTrace();
-            } catch (IOException e) {
-                error= "null_file";
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (final IOException e) {
-//                        Log.e(LOG_CAT, "ErrorClosingStream", e);
-                    }
-                }
-            }
-            return error;
-        }//doinbackground
-
-
-        @Override
-        protected void onPostExecute(String strJSON) {
-            if(dialog_org!=null && dialog_org.isShowing()) {
-                Log.v("MyApp", getClass().toString() +"Home org showing" );
-                dialog_org.dismiss();
-            }
-            if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-                Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
-                return  ;
-            }
-
-            if ( strJSON=="null_internet" ){
-                Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
-                return ;
-            }
-
-//            ViewIntern viewIntern = new ViewIntern();
-//            android.support.v4.app.FragmentManager fragmentManager = getFragmentManager();
-//            android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//            fragmentTransaction.add(R.id.fragment,viewIntern);
-//            fragmentTransaction.addToBackStack(null);
-
-            Bundle stringJSON = new Bundle();
-            stringJSON.putString("JSON", strJSON);
-            Intent intent = new Intent (getActivity(), ViewIntern.class);
-            intent.putExtra("Intern", stringJSON);
-            startActivity(intent);
-        }
-    }
-
 }
