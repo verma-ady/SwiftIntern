@@ -156,44 +156,39 @@ public class Home extends Fragment {
             rvAdapter.dummy.ITEMS = dummyContent.ITEMS;
             recyclerView.setAdapter(rvAdapter);
         } else {
-//            Log.v("MyApp", getClass().toString() + " notified after loading interns data" );
             rvAdapter.notifyItemRangeInserted(num, dummyContent.ITEMS.size()-1 );
         }
         num = num + temp ;
         Log.v("MyApp", getClass().toString() + (num-temp) + " num is " + num );
-//        getCompanyBitmapList = new GetCompanyBitmapList();
-//        getCompanyBitmapList.execute();
+
         if( progressDialog!=null && progressDialog.isShowing() ) {
             progressDialog.dismiss();
         }
-        FillImages();
+        for( ; j<num ; j++ ) {
+            FillImages(j);
+        }
 
     }
 
-    private void FillImages(){
-        Log.v("MyApp", "Out Num: "+num+ " J:" + j );
-        for( ; j<num ; j++ ) {
-            Log.v("MyApp", "In Num: "+num+ " J:" + j );
-            Uri uri = Uri.parse(BASE).buildUpon().appendPath(ORGANISATION).appendPath(PHOTOS).appendPath(org_id.get(j).toString()).build();
-            ImageLoader imageLoader = AppController.getInstance().getImageLoader();
+    private void FillImages(final int pos){
+        Uri uri = Uri.parse(BASE).buildUpon().appendPath(ORGANISATION).appendPath(PHOTOS).appendPath(org_id.get(pos).toString()).build();
+        ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 
-            // If you are using normal ImageView
-            imageLoader.get(uri.toString(), new ImageLoader.ImageListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e("MyApp", "Image Load Error: " + error.getMessage());
-                }
+        // If you are using normal ImageView
+        imageLoader.get(uri.toString(), new ImageLoader.ImageListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("MyApp", "Image Load Error: " + error.getMessage());
+            }
 
-                @Override
-                public void onResponse(ImageLoader.ImageContainer response, boolean arg1) {
-                    if (response.getBitmap() != null) {
-                        Log.v("MyApp", "Num: "+num+ " J:" + j );
-                        dummyContent.ITEMS.get(j).setBitmap(response.getBitmap());
-                        rvAdapter.notifyItemChanged(j);
-                    }
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean arg1) {
+                if (response.getBitmap() != null) {
+                    dummyContent.ITEMS.get(pos).setBitmap(response.getBitmap());
+                    rvAdapter.notifyItemChanged(pos);
                 }
-            });
-        }
+            }
+        });
     }
 
     @Override
@@ -282,9 +277,7 @@ public class Home extends Fragment {
             }
         }
     }
-
-
-
+    
     public class SearchOrganisation extends AsyncTask<String, Void, String > {
 
         //        String LOG_CAT = "MyApp";
