@@ -71,11 +71,12 @@ public class WorkDetails extends Fragment {
     String sCompany, sDuration, sDesignation, sResponsibility, token;
     String ID;
 
+    private final String VOLLEY_REQUEST = "string_req_view_intern";
     private final String BASE = "http://swiftintern.com";
     private final String ORGANISATION = "organizations";
     private final String WORK = "work";
     private final String STUDENTS = "students";
-    private final String VOLLEY_REQUEST = "string_req_view_intern";
+
     boolean update = false;
 
     @Override
@@ -121,14 +122,14 @@ public class WorkDetails extends Fragment {
         responsibility.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId== EditorInfo.IME_ACTION_SEND){
-                    if(company.getText().length()==0){
+                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                    if (company.getText().length() == 0) {
                         Toast.makeText(getActivity(), "Enter Company", Toast.LENGTH_SHORT).show();
-                    } else if(duration.getText().length()==0){
+                    } else if (duration.getText().length() == 0) {
                         Toast.makeText(getActivity(), "Enter Duration", Toast.LENGTH_SHORT).show();
-                    } else if(designation.getText().length()==0){
+                    } else if (designation.getText().length() == 0) {
                         Toast.makeText(getActivity(), "Enter Designation", Toast.LENGTH_SHORT).show();
-                    } else if(responsibility.getText().length()==0){
+                    } else if (responsibility.getText().length() == 0) {
                         Toast.makeText(getActivity(), "Enter Responsibility", Toast.LENGTH_SHORT).show();
                     } else {
                         sCompany = company.getText().toString();
@@ -237,7 +238,7 @@ public class WorkDetails extends Fragment {
             Log.v("MyApp", getClass().toString() + "Not Update URL:" + uri.toString() );
         }
 
-        saveMyWork( uri.toString() );
+        saveMyWork(uri.toString());
 
     }
 
@@ -289,7 +290,6 @@ public class WorkDetails extends Fragment {
                 params.put("Content-Type", "application/x-www-form-urlencoded");
                 params.put("Content-Language", "en-US");
                 params.put("acess-token", token);
-                params.put("Content-Type", "application/x-www-form-urlencoded");
                 return params;
             }
         };

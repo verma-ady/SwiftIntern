@@ -20,6 +20,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.swiftintern.Helper.AppController;
 import com.swiftintern.Helper.CardWorkContent;
 import com.swiftintern.Helper.RecyclerItemClickListener;
 import com.swiftintern.R;
@@ -37,7 +43,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ShowWorkDetails extends Fragment {
@@ -54,6 +62,12 @@ public class ShowWorkDetails extends Fragment {
     String org_id[], workData[][], workID[], token;
     SharedPreferences sharedPreferences;
     ProgressDialog progressDialog;
+    private final String VOLLEY_REQUEST = "string_req_view_intern";
+    private final String BASE = "http://swiftintern.com";
+    private final String ORGANISATION = "organizations";
+    private final String WORK = "work";
+    private final String STUDENTS = "students";
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,19 +93,22 @@ public class ShowWorkDetails extends Fragment {
 
         cardWorkContent.clear();
 
-        SearchUserWork searchUserWork = new SearchUserWork();
-        searchUserWork.execute();
-        cardlistener();
+//        SearchUserWork searchUserWork = new SearchUserWork();
+//        searchUserWork.execute();
+
+        Uri uri = Uri.parse(BASE).buildUpon().appendPath(STUDENTS + ".json").build();
+        searchUserWork( uri.toString() );
+
+        CardListener();
         addmorework();
         return view;
     }
 
-    public void cardlistener(){
+    public void CardListener(){
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getActivity(), new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View v, final int position) {
                 Log.v("MyApp", getClass().toString() + " Card Listener " + workID[position]);
-//                Toast.makeText(getContext(), workID[position], Toast.LENGTH_SHORT ).show();
                 alertWork(workID[position]);
             }
         }));
@@ -134,6 +151,62 @@ public class ShowWorkDetails extends Fragment {
                 fragmentTransaction.commit();
             }
         });
+    }
+
+    private void searchUserWork (String url ) {
+        Log.d("MyApp", "searchWork URL" + url);
+        StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("MyApp", "saveWork Response" + response);
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray quali = jsonObject.getJSONArray("works");
+                    length = quali.length();
+                    org_id = new String[length];
+                    workID = new String[length];
+                    workData = new String[length][4];
+                    for(int i=0; i<length ; i++ ){
+                        JSONObject qualJSON = quali.getJSONObject(i);
+                        workID[i] = qualJSON.getString("_id");
+                        org_id[i] = qualJSON.getString("_organization_id");
+                        workData[i][1] = qualJSON.getString("_duration");
+                        workData[i][2] = qualJSON.getString("_designation");
+                        workData[i][3] = qualJSON.getString("_responsibility");
+                    }
+                    SearchOrganisationName searchOrganisationName = new SearchOrganisationName();
+                    searchOrganisationName.execute();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    textView.setText("No Work Records");
+                    progressDialog.dismiss();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e( "MyApp", "saveWork Response" + error.getMessage() );
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("email", sharedPreferences.getString("email", "") );
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type", "application/x-www-form-urlencoded");
+                params.put("Content-Language", "en-US");
+                params.put("acess-token", token);
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
 
     public class SearchUserWork extends AsyncTask<Void, Void, String > {
@@ -271,9 +344,6 @@ public class ShowWorkDetails extends Fragment {
 
             HttpURLConnection urlConnection = null;
             BufferedReader bufferedReader = null;
-
-//            String base = "https://api.github.com/users";
-//            String repo= "repos";
 
             String base = "http://swiftintern.com/organizations/organization/asdasd";
 
