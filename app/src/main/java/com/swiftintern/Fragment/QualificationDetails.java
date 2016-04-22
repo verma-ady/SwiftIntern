@@ -24,6 +24,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.StringRequest;
+import com.swiftintern.Helper.AppController;
 import com.swiftintern.R;
 
 import org.json.JSONArray;
@@ -56,11 +62,14 @@ public class QualificationDetails extends Fragment {
     ArrayList<String> college = new ArrayList<>();
     ArrayAdapter<String> adapter;
     int count, page=1;
-    SearchCollege searchCollege;
+//    SearchCollege searchCollege;
     String sUniversity, sDegree, sGpa, sYear, sMajor;
     String token, ID;
     ProgressDialog progressDialog;
     boolean update;
+    private final String VOLLEY_REQUEST = "string_req_view_intern";
+    private final String BASE = "http://swiftintern.com";
+    private final String ORGANISATION = "organizations";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -92,9 +101,15 @@ public class QualificationDetails extends Fragment {
         button = (Button) view.findViewById(R.id.button_submit_userinfo);
 
 
-        searchCollege = new SearchCollege();
-        searchCollege.execute();
-        fillCollege();
+//        searchCollege = new SearchCollege();
+//        searchCollege.execute();
+
+        Uri uri = Uri.parse(BASE).buildUpon().appendPath(ORGANISATION + ".json")
+                .appendQueryParameter("page", Integer.toString(page))
+                .appendQueryParameter("type", "institute")
+                .appendQueryParameter("limit", "500").build();
+        searchCollege(uri.toString());
+
         keyevent();
         submit();
 
@@ -157,11 +172,53 @@ public class QualificationDetails extends Fragment {
         });
     }
 
-    public void fillCollege(){
-        while( page*500<count ){
-            searchCollege = new SearchCollege();
-            searchCollege.execute();
+    public void FillCollege(){
+        if( (page-1)*500<count ){
+//            searchCollege = new SearchCollege();
+//            searchCollege.execute();
+            Uri uri = Uri.parse(BASE).buildUpon().appendPath(ORGANISATION + ".json")
+                    .appendQueryParameter("page", Integer.toString(page))
+                    .appendQueryParameter("type", "institute")
+                    .appendQueryParameter("limit", "500").build();
+            searchCollege(uri.toString());
         }
+    }
+
+    private void searchCollege (String url) {
+        Log.v("MyApp", "searchCollege:" + url);
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+//                Log.d("MyApp", response.toString());
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    count = jsonObject.getInt("count");
+                    JSONArray jsonArray = jsonObject.getJSONArray("organizations");
+                    int i=0;
+                    while( jsonArray.getJSONObject(i)!=null ){
+                        college.add(jsonArray.getJSONObject(i).getString("_name"));
+                        i++;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1,college);
+                university.setAdapter(adapter);
+                university.setThreshold(1);
+                page++;
+                FillCollege();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("MyApp", "Error: " + error.getMessage());
+                progressDialog.dismiss();
+            }
+        });
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
 
     void hidekeyboard(View view){
@@ -179,6 +236,8 @@ public class QualificationDetails extends Fragment {
         progressDialog.show();
         saveQuali.execute();
     }
+
+
 
     public class SaveQuali extends AsyncTask<Void, Void, String > {
 
@@ -443,6 +502,6 @@ public class QualificationDetails extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        searchCollege.cancel(true);
+//        searchCollege.cancel(true);
     }
 }
