@@ -150,11 +150,11 @@ public class ShowQualification extends Fragment {
     }
 
     private void searchUserQual(String url) {
-        Log.d("MyApp", "searchWork URL" + url);
+        Log.d("MyApp", "searchQual URL" + url);
         StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.d("MyApp", "saveWork Response" + response);
+                Log.d("MyApp", "saveQual Response" + response);
                 try {
                     progressDialog.dismiss();
                     JSONObject jsonObject = new JSONObject(response);
@@ -187,7 +187,7 @@ public class ShowQualification extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e( "MyApp", "saveWork Response" + error.getMessage() );
+                Log.e( "MyApp", "saveQual Error" + error.getMessage() );
             }
         }){
             @Override
@@ -241,7 +241,6 @@ public class ShowQualification extends Fragment {
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
-
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
         CardQualificationContent cardsApp = new CardQualificationContent();
 

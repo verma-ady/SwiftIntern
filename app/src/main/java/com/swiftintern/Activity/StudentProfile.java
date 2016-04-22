@@ -1,6 +1,7 @@
 package com.swiftintern.Activity;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,8 +9,15 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.swiftintern.Helper.AppController;
 import com.swiftintern.R;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,11 +30,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class StudentProfile extends AppCompatActivity {
 
     TextView name, email, phone, last, membership;
     SharedPreferences sharedPreferences;
+    private final String VOLLEY_REQUEST = "string_req_view_intern";
+    private final String BASE = "http://swiftintern.com";
+    private final String STUDENT = "student";
+    String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,128 +53,52 @@ public class StudentProfile extends AppCompatActivity {
         last = (TextView) findViewById(R.id.text_lastlogin_name);
         membership = (TextView) findViewById(R.id.text_membership_name);
         sharedPreferences = getApplicationContext().getSharedPreferences("UserInfo", getApplicationContext().MODE_PRIVATE);
-
-        search_user searchUser = new search_user();
-        searchUser.execute();
+        token = sharedPreferences.getString("token", null);
+        Uri uri = Uri.parse(BASE).buildUpon().appendPath(STUDENT+".json").build();
+        searchUser(uri.toString());
     }
-    public class search_user extends AsyncTask<Void, Void, String > {
 
-        //        String LOG_CAT = "MyApp";
-        @Override
-        protected String doInBackground(Void... params) {
-
-            String error=null;
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader bufferedReader = null;
-
-            String base = "http://swiftintern.com/student.json";
-            URL url = null;
-            try {
-
-                url= new URL(base);
-                StringBuilder postDataString = new StringBuilder();
-                postDataString.append(URLEncoder.encode("email"));
-                postDataString.append("=");
-                postDataString.append(URLEncoder.encode(sharedPreferences.getString("email", "")));
-                byte[] postData = postDataString.toString().getBytes("UTF-8");
-
-                int postDataLength = postData.length;
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("POST");
-
-                urlConnection.setRequestProperty("Content-Type",
-                        "application/x-www-form-urlencoded");
-                String token = sharedPreferences.getString("token", null);
-                Log.v("MyApp", getClass().toString() + "studentProfile token " + token);
-                urlConnection.setRequestProperty("acess-token",token);
-
-                urlConnection.setRequestProperty("Content-Length", "" + Integer.toString(postDataLength));
-                urlConnection.setRequestProperty("Content-Language", "en-US");
-                urlConnection.setInstanceFollowRedirects(false);
-                urlConnection.setUseCaches(false);
-                urlConnection.setDoInput(true);
-                urlConnection.setDoOutput(true);
-                urlConnection.getOutputStream().write(postData);
-
-//                DataOutputStream wr = new DataOutputStream( urlConnection.getOutputStream());
-//                try{
-//                    wr.write( postData );
-//                } catch (  )
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if(inputStream==null){
-                    return "null_inputstream";
-                }
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line ;
-
-                while ( (line=bufferedReader.readLine())!=null ){
-                    buffer.append(line + '\n');
-                }
-
-                if (buffer.length() == 0) {
-                    return "null_inputstream";
-                }
-
-                String stringJSON = buffer.toString();
-//                Log.v(LOG_CAT, stringJSON );
-                return stringJSON;
-            } catch (UnknownHostException | ConnectException e) {
-                error = "null_internet" ;
-                e.printStackTrace();
-            } catch (IOException e) {
-                error= "null_file";
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (final IOException e) {
-//                        Log.e(LOG_CAT, "ErrorClosingStream", e);
-                    }
+    private void searchUser(String url) {
+        Log.d("MyApp", "searchUser URL" + url);
+        StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("MyApp", "User Response" + response);
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONObject jsonObjectuser = jsonObject.getJSONObject("user");
+                    name.setText(jsonObjectuser.getString("_name"));
+                    email.setText(jsonObjectuser.getString("_email"));
+                    last.setText(jsonObjectuser.getString("_last_login"));
+                    phone.setText(jsonObjectuser.getString("_phone"));
+                    membership.setText(jsonObjectuser.getString("_type"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
-            return error;
-        }//doinbackground
-
-        @Override
-        protected void onPostExecute(String strJSON) {
-
-
-            if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-//                dialog.dismiss();
-                Toast.makeText(getApplicationContext(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
-                return  ;
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e( "MyApp", "searchUser Error" + error.getMessage() );
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("email", sharedPreferences.getString("email", "") );
+                return params;
             }
 
-            if ( strJSON=="null_internet" ){
-//                dialog.dismiss();
-                Toast.makeText(getApplicationContext(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
-                return ;
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type", "application/x-www-form-urlencoded");
+                params.put("Content-Language", "en-US");
+                params.put("acess-token", token);
+                return params;
             }
-
-//            dialog.dismiss();
-            Log.v("MyApp", getClass().toString() +"on post : " + strJSON );
-            try {
-                JSONObject jsonObject = new JSONObject(strJSON);
-                JSONObject jsonObjectuser = jsonObject.getJSONObject("user");
-                name.setText(jsonObjectuser.getString("_name"));
-                email.setText(jsonObjectuser.getString("_email"));
-                last.setText(jsonObjectuser.getString("_last_login"));
-                phone.setText(jsonObjectuser.getString("_phone"));
-                membership.setText(jsonObjectuser.getString("_type"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+        };
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
 }
