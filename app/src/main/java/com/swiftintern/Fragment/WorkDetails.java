@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -48,6 +49,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class WorkDetails extends Fragment {
@@ -63,18 +66,15 @@ public class WorkDetails extends Fragment {
     ArrayList<String> college = new ArrayList<>();
     ArrayAdapter<String> adapter;
     int count, page=1;
-    SearchCompany searchCompany;
     ProgressDialog progressDialog;
     SharedPreferences sharedPreferences;
     String sCompany, sDuration, sDesignation, sResponsibility, token;
     String ID;
 
     private final String BASE = "http://swiftintern.com";
-    private final String FIND_INTERN = "Home.json";
     private final String ORGANISATION = "organizations";
-    private final String PHOTOS = "photo";
-    private final String INTERN = "internship";
-    private final String OPPORTUNITY = "opportunity";
+    private final String WORK = "work";
+    private final String STUDENTS = "students";
     private final String VOLLEY_REQUEST = "string_req_view_intern";
     boolean update = false;
 
@@ -111,9 +111,6 @@ public class WorkDetails extends Fragment {
 
         searchOrg(uri.toString());
 
-//        searchCompany = new SearchCompany();
-//        searchCompany.execute();
-//        FillOrganisations();
         keyevent();
         submit();
 
@@ -176,17 +173,6 @@ public class WorkDetails extends Fragment {
                 InputMethodManager.RESULT_UNCHANGED_SHOWN);
     }
 
-
-    private void saveWork(){
-        hidekeyboard(view);
-        SaveWork saveWork = new SaveWork();
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
-        progressDialog.setMessage("Saving Qualification");
-        progressDialog.show();
-        saveWork.execute();
-    }
-
     public void FillOrganisations(){
         if( (page-1)*500<count ){
             Uri uri = Uri.parse(BASE).buildUpon().appendPath(ORGANISATION + ".json")
@@ -195,9 +181,6 @@ public class WorkDetails extends Fragment {
                     .appendQueryParameter("limit", "500").build();
             searchOrg(uri.toString() );
         }
-//        while( page*500<count ){
-//            searchCompany.execute();
-//        }
     }
 
     private void searchOrg (String url) {
@@ -237,268 +220,82 @@ public class WorkDetails extends Fragment {
         AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
 
-    public class SearchCompany extends AsyncTask<Void, Void, String > {
+    private void saveWork(){
+        hidekeyboard(view);
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setProgressStyle(android.R.attr.progressBarStyleSmall);
+        progressDialog.setMessage("Saving Qualification");
+        progressDialog.show();
 
-        String LOG_CAT = "MyApp";
-
-        @Override
-        protected String doInBackground(Void... params) {
-
-            String error = null;
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader bufferedReader = null;
-
-            String base = "http://swiftintern.com";
-            String find = "organizations.json";
-            URL url = null;
-            try {
-
-                Uri uri = Uri.parse(base).buildUpon().appendPath(find)
-                        .appendQueryParameter("page", Integer.toString(page))
-                        .appendQueryParameter("type", "company")
-                        .appendQueryParameter("limit", "500").build();
-
-//                Log.v("MyApp", getClass().toString() +"company URL : " + uri.toString());
-                url = new URL(uri.toString());
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-
-                if(isCancelled()){
-                    return null;
-                }
-
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    return "null_inputstream";
-                }
-
-
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-
-                while ((line = bufferedReader.readLine()) != null) {
-                    buffer.append(line + '\n');
-                }
-
-                if (buffer.length() == 0) {
-                    return "null_inputstream";
-                }
-
-                String stringJSON = buffer.toString();
-//                Log.v(LOG_CAT, stringJSON );
-                return stringJSON;
-            } catch (UnknownHostException | ConnectException e) {
-//                Log.v("MyApp", "gothere");
-                error = "null_internet";
-                e.printStackTrace();
-            } catch (IOException e) {
-                error = "null_file";
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (final IOException e) {
-//                        Log.e(LOG_CAT, "ErrorClosingStream", e);
-                    }
-                }
-            }
-            return error;
-        }//doinbackground
-
-
-        @Override
-        protected void onPostExecute(String strJSON) {
-
-            if(strJSON==null){
-              return;
-            } if (strJSON == "null_internet") {
-//                dialog.dismiss();
-                Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            try {
-                JSONObject jsonObject = new JSONObject(strJSON);
-                count = jsonObject.getInt("count");
-                JSONArray jsonArray = jsonObject.getJSONArray("organizations");
-                int i=0;
-                while( jsonArray.getJSONObject(i)!=null ){
-                    college.add(jsonArray.getJSONObject(i).getString("_name"));
-                    i++;
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            adapter = new ArrayAdapter<>(getActivity() ,android.R.layout.simple_list_item_1,  college);
-            company.setAdapter(adapter);
-            company.setThreshold(1);
-            page++;
-            Log.v("MyApp", getClass().toString() + "Done autocomplete " + page );
+        Uri uri = null;
+        Log.v("MyApp", getClass().toString() + "Update: " + Boolean.toString(update));
+        if(update) {
+            uri = Uri.parse(BASE).buildUpon().appendPath(STUDENTS).appendPath(WORK).appendPath(ID + ".json").build();
+            Log.v("MyApp", getClass().toString() + "Update URL:" + uri.toString() );
+        } else {
+            uri = Uri.parse(BASE).buildUpon().appendPath(STUDENTS).appendPath(WORK + ".json").build();
+            Log.v("MyApp", getClass().toString() + "Not Update URL:" + uri.toString() );
         }
+
+        saveMyWork( uri.toString() );
 
     }
 
-    public class SaveWork extends AsyncTask<Void, Void, String > {
+    private void saveMyWork(String url){
 
-        //        String LOG_CAT = "MyApp";
-        @Override
-        protected String doInBackground(Void... params) {
-            String error=null;
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader bufferedReader = null;
-            String base=null;
-            if(update) {
-                base = "http://swiftintern.com/students/work/" + ID +".json";
-                Log.v("MyApp", getClass().toString() + "Update: " + Boolean.toString(update));
-            } else {
-                base = "http://swiftintern.com/students/work.json";
-                Log.v("MyApp", getClass().toString() + "Update: " + Boolean.toString(update));
-            }
-            URL url = null;
-            try {
-                url= new URL(base);
-                //post parameters
-                StringBuilder postDataString = new StringBuilder();
-                postDataString.append(URLEncoder.encode("institute")); // key institute
-                postDataString.append("=");
-                postDataString.append(URLEncoder.encode(sCompany)); // value sCompany
-                postDataString.append("&");
-
-                postDataString.append(URLEncoder.encode("duration"));
-                postDataString.append("=");
-                postDataString.append(URLEncoder.encode(sDuration));
-                postDataString.append("&");
-
-                postDataString.append(URLEncoder.encode("designation"));
-                postDataString.append("=");
-                postDataString.append(URLEncoder.encode(sDesignation));
-                postDataString.append("&");
-
-                postDataString.append(URLEncoder.encode("responsibility"));
-                postDataString.append("=");
-                postDataString.append(URLEncoder.encode(sResponsibility));
-                postDataString.append("&");
-
-                postDataString.append(URLEncoder.encode("action"));
-                postDataString.append("=");
-                postDataString.append(URLEncoder.encode("saveWork"));
-
-                Log.v("MyApp", getClass().toString() + "post data " + postDataString);
-                byte[] postData = postDataString.toString().getBytes("UTF-8"); //
-
-                int postDataLength = postData.length;
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("POST");
-                // headers
-                urlConnection.setRequestProperty("Content-Type", // key content,
-                        "application/x-www-form-urlencoded"); // value application/x-www-form-urlencoded
-
-                Log.v("MyApp", getClass().toString() + " Token is: " + token );
-                urlConnection.setRequestProperty("acess-token",token); // key acess-token, value token
-
-                urlConnection.setRequestProperty("Content-Length", "" + Integer.toString(postDataLength));
-                urlConnection.setRequestProperty("Content-Language", "en-US");
-                urlConnection.setInstanceFollowRedirects(false);
-                urlConnection.setUseCaches(false);
-                urlConnection.setDoInput(true);
-                urlConnection.setDoOutput(true);
-                urlConnection.getOutputStream().write(postData);
-
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if(inputStream==null){
-                    return "null_inputstream";
-                }
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line ;
-
-                while ( (line=bufferedReader.readLine())!=null ){
-                    buffer.append(line + '\n');
-                }
-
-                if (buffer.length() == 0) {
-                    return "null_inputstream";
-                }
-
-                String stringJSON = buffer.toString();
-//                Log.v(LOG_CAT, stringJSON );
-                return stringJSON;
-            } catch (UnknownHostException | ConnectException e) {
-                error = "null_internet" ;
-                e.printStackTrace();
-            } catch (IOException e) {
-                error= "null_file";
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (final IOException e) {
-//                        Log.e(LOG_CAT, "ErrorClosingStream", e);
+        StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("MyApp", "saveWork Response" + response);
+                progressDialog.dismiss();
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    if(jsonObject.getBoolean("success")){
+                        Toast.makeText(getActivity(),"Work Details Saved Successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity(),"Unable to Save work Details", Toast.LENGTH_SHORT).show();
                     }
+
+                    ShowWorkDetails showWorkDetails = new ShowWorkDetails();
+                    android.support.v4.app.FragmentManager fragmentManager = getFragmentManager();
+                    android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment, showWorkDetails);
+                    fragmentTransaction.commit();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
-            return error;
-        }//doinbackground
-
-        @Override
-        protected void onPostExecute(String strJSON) {
-            if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-                Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
-                return  ;
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e( "MyApp", "saveWork Response" + error.getMessage() );
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("institute", sCompany );
+                params.put("duration", sDuration);
+                params.put("designation", sDesignation);
+                params.put("responsibility", sResponsibility);
+                params.put("action", "saveWork");
+                return params;
             }
 
-            if ( strJSON=="null_internet" ){
-                Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
-                return ;
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type", "application/x-www-form-urlencoded");
+                params.put("Content-Language", "en-US");
+                params.put("acess-token", token);
+                params.put("Content-Type", "application/x-www-form-urlencoded");
+                return params;
             }
+        };
 
-            progressDialog.dismiss();
-//            Log.v("MyApp", getClass().toString() + "SaveWork Response: " + strJSON);
-            try {
-                JSONObject jsonObject = new JSONObject(strJSON);
-                if(jsonObject.getBoolean("success")){
-                    Toast.makeText(getActivity(),"Work Details Saved Successfully", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity(),"Unable to Save work Details", Toast.LENGTH_SHORT).show();
-                }
-
-                ShowWorkDetails showWorkDetails = new ShowWorkDetails();
-                android.support.v4.app.FragmentManager fragmentManager = getFragmentManager();
-                android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.fragment, showWorkDetails);
-                fragmentTransaction.commit();
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-//        searchCompany.cancel(true);
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
 
 }
