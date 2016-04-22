@@ -50,7 +50,7 @@ public class Home extends Fragment {
     private final String PHOTOS = "photo";
     private final String INTERN = "internship";
     private final String OPPORTUNITY = "opportunity";
-    private final String VOLLEY_REQUEST = "string_req";
+    private final String VOLLEY_REQUEST = "string_req_home";
 
     RecyclerView recyclerView;
     DummyContent dummyContent = new DummyContent();

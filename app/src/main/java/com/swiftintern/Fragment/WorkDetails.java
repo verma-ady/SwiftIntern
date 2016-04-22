@@ -3,6 +3,7 @@ package com.swiftintern.Fragment;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
@@ -23,7 +24,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.StringRequest;
+import com.swiftintern.Activity.ViewIntern;
 import com.swiftintern.Fragment.ShowWorkDetails;
+import com.swiftintern.Helper.AppController;
 import com.swiftintern.R;
 
 import org.json.JSONArray;
@@ -60,6 +68,14 @@ public class WorkDetails extends Fragment {
     SharedPreferences sharedPreferences;
     String sCompany, sDuration, sDesignation, sResponsibility, token;
     String ID;
+
+    private final String BASE = "http://swiftintern.com";
+    private final String FIND_INTERN = "Home.json";
+    private final String ORGANISATION = "organizations";
+    private final String PHOTOS = "photo";
+    private final String INTERN = "internship";
+    private final String OPPORTUNITY = "opportunity";
+    private final String VOLLEY_REQUEST = "string_req_view_intern";
     boolean update = false;
 
     @Override
@@ -87,9 +103,17 @@ public class WorkDetails extends Fragment {
         company = (AutoCompleteTextView) view.findViewById(R.id.text_userdata_company_name);
         submit = (Button) view.findViewById(R.id.button_submit_userdata);
 
-        searchCompany = new SearchCompany();
-        searchCompany.execute();
-        fillcompany();
+
+        Uri uri = Uri.parse(BASE).buildUpon().appendPath(ORGANISATION + ".json")
+                .appendQueryParameter("page", Integer.toString(page))
+                .appendQueryParameter("type", "company")
+                .appendQueryParameter("limit", "500").build();
+
+        searchOrg(uri.toString());
+
+//        searchCompany = new SearchCompany();
+//        searchCompany.execute();
+//        FillOrganisations();
         keyevent();
         submit();
 
@@ -163,10 +187,54 @@ public class WorkDetails extends Fragment {
         saveWork.execute();
     }
 
-    public void fillcompany(){
-        while( page*500<count ){
-            searchCompany.execute();
+    public void FillOrganisations(){
+        if( (page-1)*500<count ){
+            Uri uri = Uri.parse(BASE).buildUpon().appendPath(ORGANISATION + ".json")
+                    .appendQueryParameter("page", Integer.toString(page))
+                    .appendQueryParameter("type", "company")
+                    .appendQueryParameter("limit", "500").build();
+            searchOrg(uri.toString() );
         }
+//        while( page*500<count ){
+//            searchCompany.execute();
+//        }
+    }
+
+    private void searchOrg (String url) {
+        Log.v("MyApp", "searchOrg:" + url);
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+//                Log.d("MyApp", response.toString());
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    count = jsonObject.getInt("count");
+                    JSONArray jsonArray = jsonObject.getJSONArray("organizations");
+                    int i=0;
+                    while( jsonArray.getJSONObject(i)!=null ){
+                        college.add(jsonArray.getJSONObject(i).getString("_name"));
+                        i++;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                adapter = new ArrayAdapter<>(getActivity() ,android.R.layout.simple_list_item_1,  college);
+                company.setAdapter(adapter);
+                company.setThreshold(1);
+                page++;
+                FillOrganisations();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("MyApp", "Error: " + error.getMessage());
+                progressDialog.dismiss();
+            }
+        });
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
 
     public class SearchCompany extends AsyncTask<Void, Void, String > {
@@ -271,7 +339,7 @@ public class WorkDetails extends Fragment {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            adapter = new ArrayAdapter<>(getActivity() ,android.R.layout.simple_list_item_1,college);
+            adapter = new ArrayAdapter<>(getActivity() ,android.R.layout.simple_list_item_1,  college);
             company.setAdapter(adapter);
             company.setThreshold(1);
             page++;
@@ -430,7 +498,7 @@ public class WorkDetails extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        searchCompany.cancel(true);
+//        searchCompany.cancel(true);
     }
 
 }
