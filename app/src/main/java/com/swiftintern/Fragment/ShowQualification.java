@@ -1,6 +1,5 @@
 package com.swiftintern.Fragment;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -21,7 +20,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.swiftintern.Fragment.QualificationDetails;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.StringRequest;
+import com.swiftintern.Helper.AppController;
 import com.swiftintern.Helper.CardQualificationContent;
 import com.swiftintern.Helper.RecyclerItemClickListener;
 import com.swiftintern.R;
@@ -39,7 +44,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ShowQualification extends Fragment {
 
@@ -56,6 +63,11 @@ public class ShowQualification extends Fragment {
     Button button;
     String token, org_id[], qualidata[][], QualiID[];
     int length;
+    private final String VOLLEY_REQUEST = "string_req_view_intern";
+    private final String BASE = "http://swiftintern.com";
+    private final String ORGANISATIONS = "organizations";
+    private final String ORGANISATION = "organization";
+    private final String STUDENTS = "students";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,8 +91,8 @@ public class ShowQualification extends Fragment {
 
         cardsAppContent.clear();
 
-        SearchUserQuali searchUserQuali = new SearchUserQuali();
-        searchUserQuali.execute();
+        Uri uri = Uri.parse(BASE).buildUpon().appendPath(STUDENTS+".json").build();
+        searchUserQual(uri.toString());
 
         cardlistener();
         addmorequali();
@@ -136,241 +148,98 @@ public class ShowQualification extends Fragment {
             }
         });
     }
-    public class SearchUserQuali extends AsyncTask<Void, Void, String > {
 
-                String LOG_CAT = "MyApp";
-        @Override
-        protected String doInBackground(Void... params) {
-
-            Log.v(LOG_CAT, getClass().toString() + "doInBackground");
-            String error=null;
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader bufferedReader = null;
-
-            String base = "http://swiftintern.com/students.json";
-            URL url = null;
-            try {
-                Log.v("MyApp", getClass().toString() +base);
-                url= new URL(base);
-                StringBuilder postDataString = new StringBuilder();
-                postDataString.append(URLEncoder.encode("email"));
-                postDataString.append("=");
-                postDataString.append(URLEncoder.encode(sharedPreferences.getString("email", "")));
-                byte[] postData = postDataString.toString().getBytes("UTF-8");
-
-                int postDataLength = postData.length;
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("POST");
-                Log.v("MyApp", getClass().toString() + " Token is : " + token );
-                urlConnection.setRequestProperty("acess-token",token);
-                urlConnection.setRequestProperty("Content-Type",
-                        "application/x-www-form-urlencoded");
-
-                urlConnection.setRequestProperty("Content-Length", "" + Integer.toString(postDataLength));
-                urlConnection.setRequestProperty("Content-Language", "en-US");
-                urlConnection.setInstanceFollowRedirects(false);
-                urlConnection.setUseCaches(false);
-                urlConnection.setDoInput(true);
-                urlConnection.setDoOutput(true);
-                urlConnection.getOutputStream().write(postData);
-
-//                DataOutputStream wr = new DataOutputStream( urlConnection.getOutputStream());
-//                try{
-//                    wr.write( postData );
-//                } catch (  )
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if(inputStream==null){
-                    return "null_inputstream";
-                }
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line ;
-
-                while ( (line=bufferedReader.readLine())!=null ){
-                    buffer.append(line + '\n');
-                }
-
-                if (buffer.length() == 0) {
-                    return "null_inputstream";
-                }
-
-                String stringJSON = buffer.toString();
-//                Log.v(LOG_CAT, stringJSON );
-                return stringJSON;
-            } catch (UnknownHostException | ConnectException e) {
-                error = "null_internet" ;
-                e.printStackTrace();
-            } catch (IOException e) {
-                error= "null_file";
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (final IOException e) {
-//                        Log.e(LOG_CAT, "ErrorClosingStream", e);
-                    }
-                }
-            }
-            return error;
-        }//doinbackground
-
-        @Override
-        protected void onPostExecute(String strJSON) {
-
-            if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-                progressDialog.dismiss();
-                Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
-                return  ;
-            }
-
-            if ( strJSON=="null_internet" ){
-                progressDialog.dismiss();
-                Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
-                return ;
-            }
-
-            try {
-                progressDialog.dismiss();
-                JSONObject jsonObject = new JSONObject(strJSON);
-                JSONArray quali = jsonObject.getJSONArray("qualifications");
-                length = quali.length();
-                org_id = new String[length];
-                QualiID = new String[length];
-                qualidata = new String[length][5];
-                for(int i=0; i<length ; i++ ){
-                    JSONObject qualJSON = quali.getJSONObject(i);
-                    org_id[i] = qualJSON.getString("_organization_id");
-                    QualiID[i] = qualJSON.getString("_id");
-                    qualidata[i][1] = qualJSON.getString("_degree");
-                    qualidata[i][2] = qualJSON.getString("_major");
-                    qualidata[i][3] = qualJSON.getString("_gpa");
-                    qualidata[i][4] = qualJSON.getString("_passing_year");
-                }
-                SearchOrganisationName searchOrganisationName = new SearchOrganisationName();
-                searchOrganisationName.execute();
-            } catch (JSONException e) {
-                e.printStackTrace();
-                textView.setText("No Qualifications Added");
-            }
-
-            for(int i =0 ; i<length ; i++ ){
-                Log.v("MyApp", getClass().toString() +"Organization IDs" + org_id[i]);
-            }
-
-//            Log.v("MyApp", getClass().toString() + strJSON);
-        }
-    }//getrepo
-
-    public class SearchOrganisationName extends AsyncTask<Void, Void, String > {
-
-                String LOG_CAT = "MyApp";
-        @Override
-        protected String doInBackground(Void... params) {
-
-            Log.v(LOG_CAT, getClass().toString() + "   doInBackground");
-            String error=null;
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader bufferedReader = null;
-
-            String base = "http://swiftintern.com/organizations/organization/asdasd";
-
-            URL url = null;
-            try {
-                String stringJSON = null;
-                for(int i=0; i<length ; i++ ) {
-                    Uri uri = Uri.parse(base).buildUpon().appendPath(org_id[i]+".json").build();
-                    Log.v("MyApp", getClass().toString() + "URL: " + uri.toString() );
-                    url = new URL(uri.toString());
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.connect();
-
-                    InputStream inputStream = urlConnection.getInputStream();
-
-                    StringBuffer buffer = new StringBuffer();
-                    if (inputStream == null) {
-                        return "null_inputstream";
+    private void searchUserQual(String url) {
+        Log.d("MyApp", "searchWork URL" + url);
+        StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("MyApp", "saveWork Response" + response);
+                try {
+                    progressDialog.dismiss();
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray quali = jsonObject.getJSONArray("qualifications");
+                    length = quali.length();
+                    org_id = new String[length];
+                    QualiID = new String[length];
+                    qualidata = new String[length][5];
+                    for(int i=0; i<length ; i++ ){
+                        JSONObject qualJSON = quali.getJSONObject(i);
+                        org_id[i] = qualJSON.getString("_organization_id");
+                        QualiID[i] = qualJSON.getString("_id");
+                        qualidata[i][1] = qualJSON.getString("_degree");
+                        qualidata[i][2] = qualJSON.getString("_major");
+                        qualidata[i][3] = qualJSON.getString("_gpa");
+                        qualidata[i][4] = qualJSON.getString("_passing_year");
                     }
 
-                    bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                    String line;
-
-                    while ((line = bufferedReader.readLine()) != null) {
-                        buffer.append(line + '\n');
+                    for(int i=0; i<length ; i++ ) {
+                        Uri uri = Uri.parse(BASE).buildUpon().appendPath(ORGANISATIONS)
+                                .appendPath(ORGANISATION).appendPath("asdasd").appendPath(org_id[i] + ".json").build();
+                        searchOrganisation(uri.toString(), i, length);
                     }
 
-                    if (buffer.length() == 0) {
-                        return "null_inputstream";
-                    }
-
-                    stringJSON = buffer.toString();
-
-                    JSONObject jsonObject = new JSONObject(stringJSON);
-                    qualidata[i][0] = jsonObject.getJSONObject("organization").getString("_name");
-                }//endOfFor
-//                Log.v(LOG_CAT, stringJSON );
-                return stringJSON;
-            } catch (UnknownHostException | ConnectException e) {
-                error = "null_internet" ;
-                e.printStackTrace();
-            } catch (IOException e) {
-                error= "null_file";
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (final IOException e) {
-//                        Log.e(LOG_CAT, "ErrorClosingStream", e);
-                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    textView.setText("No Qualifications Added");
                 }
             }
-            return error;
-        }//doinbackground
-
-
-        @Override
-        protected void onPostExecute(String strJSON) {
-
-            if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-                Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
-                progressDialog.dismiss();
-                return  ;
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e( "MyApp", "saveWork Response" + error.getMessage() );
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("email", sharedPreferences.getString("email", "") );
+                return params;
             }
 
-            if ( strJSON=="null_internet" ){
-                Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
-                progressDialog.dismiss();
-                return ;
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type", "application/x-www-form-urlencoded");
+                params.put("Content-Language", "en-US");
+                params.put("acess-token", token);
+                return params;
             }
+        };
 
-            for(int i =0 ; i<length ; i++ ){
-                Log.v("MyApp", getClass().toString() + Integer.toString(i) + "  " + qualidata[i][0] + "  " +
-                        qualidata[i][1] + "  " + qualidata[i][2] + "  "+ qualidata[i][3] + "  "+ qualidata[i][4]);
-                cardsAppContent.addItem(new CardQualificationContent.DummyItem(qualidata[i][0], qualidata[i][1], qualidata[i][2],
-                        qualidata[i][3],qualidata[i][4]));
-                rvAdapter = new RVAdapter(cardsAppContent.ITEMS);
-                recyclerView.setAdapter(rvAdapter);
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
+    }
+
+    private void searchOrganisation (String url, final int position, final int size ){
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+//                Log.d("MyApp", response.toString());
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    qualidata[position][0] = jsonObject.getJSONObject("organization").getString("_name");
+                    cardsAppContent.addItem(new CardQualificationContent.DummyItem(qualidata[position][0], qualidata[position][1],
+                            qualidata[position][2], qualidata[position][3],qualidata[position][4]));
+                    if(position==(size-1)){
+                        rvAdapter = new RVAdapter(cardsAppContent.ITEMS);
+                        recyclerView.setAdapter(rvAdapter);
+                        progressDialog.dismiss();
+                    }
+                } catch (JSONException exception ){
+                    Log.e("MyApp", exception.getMessage());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("MyApp", "Error: " + error.getMessage());
                 progressDialog.dismiss();
             }
-        }
+        });
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
