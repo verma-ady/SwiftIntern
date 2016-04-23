@@ -40,7 +40,7 @@ public class HTTPFileUpload implements Runnable{
     URL connectURL;
     Context context;
     String Base64;
-    String reply, token, OppID;
+    String token, OppID;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
 
@@ -63,9 +63,8 @@ public class HTTPFileUpload implements Runnable{
         }
     }
 
-    public String Send_Now(){
+    public void Send_Now(){
         Sending();
-        return reply;
     }
 
     void Sending(){
@@ -229,6 +228,5 @@ public class HTTPFileUpload implements Runnable{
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
     }
 }

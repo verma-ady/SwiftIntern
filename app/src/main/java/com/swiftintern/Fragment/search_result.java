@@ -23,7 +23,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.StringRequest;
 import com.swiftintern.Activity.ViewIntern;
+import com.swiftintern.Helper.AppController;
 import com.swiftintern.Helper.DummyContent;
 import com.swiftintern.Helper.EndlessRecyclerViewScrollListener;
 import com.swiftintern.Helper.RecyclerItemClickListener;
@@ -54,12 +61,28 @@ public class search_result extends Fragment {
     DummyContent dummyContent = new DummyContent();
     RVAdapter rvAdapter;
     TextView head;
-    Integer pagenumber = 1, count, num=0, cnt = 0;
+    Integer pagenumber, count, num, cnt = 0, i, j;
     LinearLayoutManager linearLayoutManager;
     String myJSON, place, category;
     ArrayList<Integer> org_id = new ArrayList<>();
-    ProgressDialog dialog_card, dialog_org, dialog_page;
-    GetCompanyBitmapList getCompanyBitmapList = new GetCompanyBitmapList();
+
+    private final String BASE = "http://swiftintern.com";
+    private final String FIND_INTERN = "Home.json";
+    private final String ORGANISATION = "organizations";
+    private final String PHOTOS = "photo";
+    private final String INTERN = "internship";
+    private final String OPPORTUNITY = "opportunity";
+    private final String VOLLEY_REQUEST = "string_req_home";
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.v("MyApp", getClass().toString() + "onResume");
+        cnt = 0;
+        j=0;
+        num = 0;
+        pagenumber  = 1;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -82,12 +105,9 @@ public class search_result extends Fragment {
             head.setText(category + " Internships at " + place);
         }
 
-
-        dialog_card = new ProgressDialog(getActivity());
-        dialog_card.setProgressStyle(android.R.attr.progressBarStyleSmall);
-        dialog_card.setMessage("Connecting To SwiftIntern");
-        dialog_card.show();
-
+        num=0;
+        pagenumber = 1;
+        j=0;
         int temp=0;
         try {
             JSONObject JSON = new JSONObject( myJSON);
@@ -99,12 +119,10 @@ public class search_result extends Fragment {
                 Log.v("MyApp", getClass().toString() +"NoIntern");
                 dummyContent.addItem(new DummyContent.DummyItem("Sorry",
                         "No Internship available with selected category at selected place", null, null, null));
-            }
-            else {
+            } else {
                 if ( count==10 || pagenumber!=(count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
                     temp=10;
-                }
-                else{
+                } else{
                     temp=count%10;
                 }
 
@@ -125,22 +143,15 @@ public class search_result extends Fragment {
         num = num + temp;
         rvAdapter = new RVAdapter( dummyContent.ITEMS);
         recyclerView.setAdapter(rvAdapter);
-        dialog_card.dismiss();
 
         RecyclerListener();
 
-        if(count!=0) {
-            getCompanyBitmapList = new GetCompanyBitmapList();
-            getCompanyBitmapList.execute();
+
+        for( ; j<num ; j++ ) {
+            FillImages(j);
         }
 
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        cnt = 0;
     }
 
     void RecyclerListener(){
@@ -148,13 +159,9 @@ public class search_result extends Fragment {
                 (new RecyclerItemClickListener(getActivity(), new RecyclerItemClickListener.OnItemClickListener() {
                             @Override
                             public void onItemClick(View v, int position) {
-                                getCompanyBitmapList.cancel(true);
-                                dialog_org = new ProgressDialog(getActivity());
-                                dialog_org.setProgressStyle(android.R.attr.progressBarStyleSmall);
-                                dialog_org.setMessage("Connecting To SwiftIntern");
-                                dialog_org.show();
-                                SearchOrganisation searchOrganisation = new SearchOrganisation();
-                                searchOrganisation.execute(dummyContent.ITEMS.get(position).opp_id.toString());
+                                Uri uri = Uri.parse(BASE).buildUpon().appendPath(INTERN).appendPath(OPPORTUNITY)
+                                        .appendPath(dummyContent.ITEMS.get(position).opp_id+".json").build();
+                                SearchIntern(uri.toString());
                             }
                         })
                 );
@@ -162,15 +169,118 @@ public class search_result extends Fragment {
         recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
+                if(pagenumber==1) num=10;
                 if (pagenumber != (count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
                     pagenumber++;
-                    SearchApi searchApi = new SearchApi();
-                    searchApi.execute(category, place);
                     Log.v("MyApp", "Result next" + pagenumber);
+                    Uri uri = Uri.parse(BASE).buildUpon().appendPath(FIND_INTERN)
+                            .appendQueryParameter("query", category)
+                            .appendQueryParameter("location", place)
+                            .appendQueryParameter("page", pagenumber.toString()).build();
+
+                    GetIntern(uri.toString());
                 } else
                     Toast.makeText(getActivity(), "Already at last Page", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void GetIntern(String url) {
+        Log.v("MyApp", "URL:" + url);
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                FillIntern(response.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("MyApp", "Error: " + error.getMessage());
+            }
+        });
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
+    }
+
+    private void FillIntern (String strJSON) {
+        int temp=0;
+        try {
+            JSONObject JSON = new JSONObject( strJSON);
+            JSONArray opp = JSON.getJSONArray("opportunities");
+            count = JSON.getInt("count");
+
+            if (pagenumber!=(count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
+                temp = 10;
+            }
+            else{
+                temp = count%10;
+            }
+            for(i=0 ; i<temp ; i++ ){
+                JSONObject obj = opp.getJSONObject(i);
+                dummyContent.addItem(new DummyContent.DummyItem(obj.getString("_title"),
+                        obj.getString("_eligibility"), obj.getString("_id"), obj.getString("_organization_id"), null));
+                org_id.add(obj.getInt("_organization_id"));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        rvAdapter.notifyItemRangeInserted(num, dummyContent.ITEMS.size() - 1 );
+
+        num = num + temp ;
+        Log.v("MyApp", "DummyContent" + getClass().toString() + (num - temp) + " num is " + num);
+
+        for( ; j<num ; j++ ) {
+            FillImages(j);
+        }
+
+    }
+
+    private void FillImages(final int pos){
+        Uri uri = Uri.parse(BASE).buildUpon().appendPath(ORGANISATION).appendPath(PHOTOS).appendPath(org_id.get(pos).toString()).build();
+        ImageLoader imageLoader = AppController.getInstance().getImageLoader();
+
+        // If you are using normal ImageView
+        imageLoader.get(uri.toString(), new ImageLoader.ImageListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("MyApp", "Image Load Error: " + error.getMessage());
+            }
+
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean arg1) {
+                if (response.getBitmap() != null) {
+                    Log.d("MyApp", "POS:" + pos);
+                    dummyContent.ITEMS.get(pos).setBitmap(response.getBitmap());
+                    rvAdapter.notifyItemChanged(pos);
+                }
+            }
+        });
+    }
+
+    private void SearchIntern (String url){
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+//                Log.d("MyApp", response.toString());
+                Bundle stringJSON = new Bundle();
+                stringJSON.putString("JSON", response.toString());
+                Intent intent = new Intent (getActivity(), ViewIntern.class);
+                intent.putExtra("Intern", stringJSON);
+                startActivity(intent);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("MyApp", "Error: " + error.getMessage());
+            }
+        });
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.CardViewHolder> {
@@ -192,9 +302,9 @@ public class search_result extends Fragment {
             holder.text.setText(dummy.ITEMS.get(position).id);
             holder.subtext.setText(dummy.ITEMS.get(position).content);
             holder.imageView.setImageBitmap(dummy.ITEMS.get(position).image);
-            if(position>linearLayoutManager.findLastVisibleItemPosition()){//scroll down
-                holder.itemView.setAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.bottum_up));
-            }
+//            if(position>linearLayoutManager.findLastVisibleItemPosition()){//scroll down
+//                holder.itemView.setAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.bottum_up));
+//            }
         }
 
         @Override
@@ -215,278 +325,4 @@ public class search_result extends Fragment {
             }
         }
     }
-
-    public class SearchApi extends AsyncTask<String, Void, String > {
-
-        @Override
-        protected String doInBackground(String... params) {
-            String error=null;
-            if( params.length == 0 ){
-                return "null_noInput";
-            }
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader bufferedReader = null;
-            String base = "http://swiftintern.com";
-            String find = "Home.json";
-            URL url = null;
-            try {
-
-                Uri uri = Uri.parse(base).buildUpon().appendPath(find)
-                        .appendQueryParameter("query", params[0])
-                        .appendQueryParameter("location",params[1])
-                        .appendQueryParameter("page", pagenumber.toString()).build();
-
-                url= new URL(uri.toString());
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-
-                StringBuffer buffer = new StringBuffer();
-                if(inputStream==null){
-                    return "null_inputstream";
-                }
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line ;
-
-                while ( (line=bufferedReader.readLine())!=null ){
-                    buffer.append(line + '\n');
-                }
-
-                if (buffer.length() == 0) {
-                    return "null_inputstream";
-                }
-
-                String stringJSON = buffer.toString();
-//                Log.v(LOG_CAT, stringJSON );
-                return stringJSON;
-            } catch (UnknownHostException | ConnectException e) {
-                error = "null_internet" ;
-                e.printStackTrace();
-            } catch (IOException e) {
-                error= "null_file";
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (final IOException e) {
-//                        Log.e(LOG_CAT, "ErrorClosingStream", e);
-                    }
-                }
-            }
-            return error;
-        }//doinbackground
-
-        @Override
-        protected void onPostExecute(String strJSON) {
-            if( dialog_page!=null && dialog_page.isShowing() ) {
-                Log.v( "MyApp", getClass().toString() +"Home page showing");
-                dialog_page.dismiss();
-            }
-
-            if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-                Toast.makeText(getActivity(), "Not Able to connect", Toast.LENGTH_SHORT).show();
-                return  ;
-            }
-
-            if ( strJSON=="null_internet" ){
-                Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
-                return ;
-            }
-
-            int temp = 0;
-            try {
-                JSONObject JSON = new JSONObject( strJSON);
-                JSONArray opp = JSON.getJSONArray("opportunities");
-
-                if (pagenumber!=(count % 10 == 0 ? count / 10 : (count / 10) + 1)) {
-                    temp=10;
-                }
-                else{
-                    temp=count%10;
-                }
-
-                for(int i=0; i<temp ; i++ ){
-                    JSONObject obj = opp.getJSONObject(i);
-                    dummyContent.addItem(new DummyContent.DummyItem(obj.getString("_title"),
-                            obj.getString("_eligibility"), obj.getString("_id"), obj.getString("_organization_id")
-                            ,null));
-                    org_id.add(obj.getInt("_organization_id"));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            if(pagenumber==1) {
-                rvAdapter = (RVAdapter) recyclerView.getAdapter();
-                rvAdapter.dummy.ITEMS = dummyContent.ITEMS;
-                recyclerView.setAdapter(rvAdapter);
-            } else {
-                Log.v("MyApp", getClass().toString() + " notified after loading interns data" );
-                rvAdapter.notifyItemRangeInserted(num, dummyContent.ITEMS.size()-1 );
-            }
-            num = num + temp ;
-            getCompanyBitmapList = new GetCompanyBitmapList();
-            getCompanyBitmapList.execute();
-        }
-    }
-
-    public class SearchOrganisation extends AsyncTask<String, Void, String > {
-
-        String LOG_CAT = "MyApp";
-        @Override
-        protected String doInBackground(String... params) {
-
-            String error=null;
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader bufferedReader = null;
-
-            String base = "http://swiftintern.com/internship/opportunity";
-            String find;
-            URL url = null;
-            try {
-
-                find = params[0] + ".json";
-                Uri uri = Uri.parse(base).buildUpon().appendPath(find).build();
-
-                Log.v(LOG_CAT,getClass().toString() + uri.toString());
-                url= new URL(uri.toString());
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-
-                StringBuffer buffer = new StringBuffer();
-                if(inputStream==null){
-                    return "null_inputstream";
-                }
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line ;
-
-                while ( (line=bufferedReader.readLine())!=null ){
-                    buffer.append(line + '\n');
-                }
-
-                if (buffer.length() == 0) {
-                    return "null_inputstream";
-                }
-
-                String stringJSON = buffer.toString();
-//                Log.v(LOG_CAT, getClass().toString() +stringJSON );
-                return stringJSON;
-            } catch (UnknownHostException | ConnectException e) {
-                error = "null_internet" ;
-                e.printStackTrace();
-            } catch (IOException e) {
-                error= "null_file";
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_CAT, "ErrorClosingStream", e);
-                    }
-                }
-            }
-            return error;
-        }//doinbackground
-
-
-        @Override
-        protected void onPostExecute(String strJSON) {
-
-            if(dialog_org!=null && dialog_org.isShowing()) {
-                Log.v("MyApp", getClass().toString() +"Home org showing" );
-                dialog_org.dismiss();
-            }
-
-            if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-                Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
-                return  ;
-            }
-
-            if ( strJSON=="null_internet" ){
-                Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
-                return ;
-            }
-
-//            ViewIntern viewIntern = new ViewIntern();
-//            android.support.v4.app.FragmentManager fragmentManager = getFragmentManager();
-//            android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//            fragmentTransaction.add(R.id.fragment,viewIntern);
-//            fragmentTransaction.addToBackStack(null);
-
-            Bundle stringJSON = new Bundle();
-            stringJSON.putString("JSON", strJSON);
-            Intent intent = new Intent (getActivity(), ViewIntern.class);
-            intent.putExtra("Intern", stringJSON);
-            startActivity(intent);
-//
-//            viewIntern.setArguments(stringJSON);
-//            fragmentTransaction.commit();
-
-
-        }
-    }
-
-    public class GetCompanyBitmapList extends AsyncTask<Void, Void, Bitmap> {
-
-        int temp = cnt;
-        public Bitmap myBitmap;
-        public InputStream input = null;
-        HttpURLConnection connection = null;
-
-        @Override
-        protected Bitmap doInBackground(Void... params) {
-            try {
-                for(  ; cnt<num ; cnt++ ) {
-                    URL url = new URL("http://swiftintern.com/organizations/photo/" + org_id.get(cnt));
-                    Log.v("MyApp", getClass().toString() +"   http://swiftintern.com/organizations/photo/" + org_id.get(cnt) );
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-                    input = connection.getInputStream();
-                    myBitmap = BitmapFactory.decodeStream(input);
-                    Log.v("MyApp", getClass().toString() +"Bitmap returned");
-                    dummyContent.ITEMS.get(cnt).setBitmap(myBitmap);
-                }
-                return myBitmap;
-            } catch ( IOException e ){
-                e.printStackTrace();
-            } finally {
-                if( connection!=null ){
-                    //no connection
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap b ) {
-            if(b==null){
-                Log.v("MyApp", getClass().toString() + "Bitmap Null");
-                return;
-            }
-
-            rvAdapter.notifyItemRangeChanged(temp, cnt-1 );
-            Log.v("MyApp", getClass().toString() + " Updated ");
-
-        }
-    }//getbitmap
 }
