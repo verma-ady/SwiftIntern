@@ -12,25 +12,43 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.swiftintern.Fragment.ShowQualification;
+import com.swiftintern.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class HTTPFileUpload implements Runnable{
+
     URL connectURL;
     Context context;
     String Base64;
     String reply, token, OppID;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+
+    private final String VOLLEY_REQUEST = "string_req_view_intern";
+    private final String BASE = "http://swiftintern.com";
+    private final String APP = "app";
+    private final String APPLY = "apply";
+
     public HTTPFileUpload(String urlString, String stoken, String vbase64, String vOppID, Context vcontext){
         try{
             connectURL = new URL(urlString);
@@ -106,7 +124,7 @@ public class HTTPFileUpload implements Runnable{
                 Log.v(Tag, getClass().toString() +"Headers are written");
                 dos.flush();
 
-                Log.v(Tag,getClass().toString() +"File Sent, Response: "+String.valueOf(conn.getResponseCode()));
+                Log.v(Tag, getClass().toString() + "File Sent, Response: " + String.valueOf(conn.getResponseCode()));
 
                 InputStream is = conn.getInputStream();
 
@@ -123,13 +141,13 @@ public class HTTPFileUpload implements Runnable{
             }
             catch (MalformedURLException ex)
             {
-                Log.v(Tag, getClass().toString() +"URL error: " + ex.getMessage(), ex);
+                Log.v(Tag, getClass().toString() + "URL error: " + ex.getMessage(), ex);
                 return "false";
             }
 
             catch (IOException ioe)
             {
-                Log.v(Tag, getClass().toString() +"IO error: " + ioe.getMessage(), ioe);
+                Log.v(Tag, getClass().toString() + "IO error: " + ioe.getMessage(), ioe);
                 return "false";
             }
         }
@@ -151,8 +169,8 @@ public class HTTPFileUpload implements Runnable{
                     editor.putString("resumeID", resume.getString("_id"));
                     editor.commit();
                     if(OppID!=null) {
-                        ApplyForInternship applyForInternship = new ApplyForInternship();
-                        applyForInternship.execute();
+                        Uri uri = Uri.parse(BASE).buildUpon().appendPath(APP).appendPath(APPLY + ".json").build();
+                        applyIntern(uri.toString());
                     }
                 } else {
                     Toast.makeText(context, "Upload Failed", Toast.LENGTH_SHORT).show();
@@ -163,131 +181,51 @@ public class HTTPFileUpload implements Runnable{
         }
     }
 
-    public class ApplyForInternship extends AsyncTask<Void, Void, String > {
+    private void applyIntern(String url){
 
-        //        String LOG_CAT = "MyApp";
-        @Override
-        protected String doInBackground(Void... params) {
-            Log.v("MyApp", getClass().toString() + " Applying now for " + OppID );
-            String error=null;
-            HttpURLConnection urlConnection = null;
-            BufferedReader bufferedReader = null;
-
-            String base = "http://swiftintern.com/app/apply.json";
-            URL url = null;
-            try {
-                url= new URL(base);
-                StringBuilder postDataString = new StringBuilder();
-
-                postDataString.append(URLEncoder.encode("opportunity_id"));
-                postDataString.append("=");
-                postDataString.append(URLEncoder.encode(OppID));
-                postDataString.append("&");
-
-                postDataString.append(URLEncoder.encode("resume_id"));
-                postDataString.append("=");
-                postDataString.append(URLEncoder.encode(sharedPreferences.getString("resumeID", null)));
-                postDataString.append("&");
-
-                postDataString.append(URLEncoder.encode("action"));
-                postDataString.append("=");
-                postDataString.append(URLEncoder.encode("internship"));
-
-                byte[] postData = postDataString.toString().getBytes("UTF-8");
-
-                int postDataLength = postData.length;
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("POST");
-
-                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                String token = sharedPreferences.getString("token", null);
-                Log.v("MyApp", getClass().toString() + " token " + token);
-                urlConnection.setRequestProperty("acess-token",token);
-
-                urlConnection.setRequestProperty("Content-Length", "" + Integer.toString(postDataLength));
-                urlConnection.setRequestProperty("Content-Language", "en-US");
-                urlConnection.setInstanceFollowRedirects(false);
-                urlConnection.setUseCaches(false);
-                urlConnection.setDoInput(true);
-                urlConnection.setDoOutput(true);
-                urlConnection.getOutputStream().write(postData);
-
-//                DataOutputStream wr = new DataOutputStream( urlConnection.getOutputStream());
-//                try{
-//                    wr.write( postData );
-//                } catch (  )
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if(inputStream==null){
-                    return "null_inputstream";
-                }
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line ;
-
-                while ( (line=bufferedReader.readLine())!=null ){
-                    buffer.append(line + '\n');
-                }
-
-                if (buffer.length() == 0) {
-                    return "null_inputstream";
-                }
-
-                String stringJSON = buffer.toString();
-//                Log.v(LOG_CAT, stringJSON );
-                return stringJSON;
-            } catch (UnknownHostException | ConnectException e) {
-                error = "null_internet" ;
-                e.printStackTrace();
-            } catch (IOException e) {
-                error= "null_file";
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (final IOException e) {
-//                        Log.e(LOG_CAT, "ErrorClosingStream", e);
+        StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("MyApp", "applyIntern Response" + response);
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    if(jsonObject.getString("success").equals("true")){
+                        Toast.makeText(context, "Applied for Internship", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(context, "Failed to applied for Internship", Toast.LENGTH_LONG).show();
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
-            return error;
-        }//doinbackground
-
-        @Override
-        protected void onPostExecute(String strJSON) {
-
-
-            if( strJSON=="null_inputstream" || strJSON=="null_file" ){
-                Toast.makeText(context, "No Such User Id Found", Toast.LENGTH_SHORT).show();
-                return  ;
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e( "MyApp", "applyIntern Error" + error.getMessage() );
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("opportunity_id", OppID );
+                params.put("resume_id", sharedPreferences.getString("resumeID", null));
+                params.put("action", "internship");
+                return params;
             }
 
-            if ( strJSON=="null_internet" ){
-                Toast.makeText(context, "No Internet Connectivity", Toast.LENGTH_SHORT).show();
-                return ;
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type", "application/x-www-form-urlencoded");
+                params.put("Content-Language", "en-US");
+                params.put("acess-token", token);
+                return params;
             }
+        };
 
-            try {
-                JSONObject jsonObject = new JSONObject(strJSON);
-                if(jsonObject.getString("success").equals("true")){
-                    Toast.makeText(context, "Applied for Internship", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(context, "Failed to applied for Internship", Toast.LENGTH_LONG).show();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
-    }//getrepo
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
+    }
 
     @Override
     public void run() {
