@@ -17,6 +17,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.StringRequest;
+import com.swiftintern.Helper.AppController;
 import com.swiftintern.Helper.CardQualificationContent;
 import com.swiftintern.R;
 
@@ -32,7 +39,9 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Application extends Fragment {
 
@@ -50,6 +59,14 @@ public class Application extends Fragment {
     String oppID[], AppData[][];
     int num;
     ProgressDialog dialog;
+    private final String VOLLEY_REQUEST = "string_req_view_intern";
+    private final String BASE = "http://swiftintern.com";
+    private final String ORGANISATIONS = "organizations";
+    private final String ORGANISATION = "organization";
+    private final String OPPORTUNITY = "opportunity";
+    private final String INTERNSHIP = "internship";
+    private final String STUDENTS = "students";
+    private final String APPLICATIONS = "applications";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,6 +82,7 @@ public class Application extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         textView = (TextView) view.findViewById(R.id.text_app_head);
 
+        token = sharedPreferences.getString("token", null);
 //        cardsAppContent.addItem(new CardQualificationContent.DummyItem("org", "cat", "loc", "sti", "sta"));
         cardsAppContent.clear();
         dialog = new ProgressDialog(getActivity());
@@ -80,108 +98,99 @@ public class Application extends Fragment {
         return view;
     }
 
+    private void fill_cards_with_apps(){
+//        SearchApps searchApps = new SearchApps();
+//        searchApps.execute();
 
-    public class SearchApps extends AsyncTask<Void, Void, String > {
+        Uri uri = Uri.parse(BASE).buildUpon().appendPath(STUDENTS).appendPath(APPLICATIONS+ ".json").build();
+        searchApp(uri.toString());
 
-        @Override
-        protected String doInBackground(Void... params) {
+    }
 
-            String error=null;
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader bufferedReader = null;
-
-            String base = "http://swiftintern.com/students/applications.json";
-            URL url = null;
-            try {
-
-                url= new URL(base);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                token = sharedPreferences.getString("token", null);
-                Log.v("MyApp", getClass().toString() + " token " + token);
-                urlConnection.setRequestProperty("acess-token",token);
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-
-                StringBuffer buffer = new StringBuffer();
-                if(inputStream==null){
-                    return "null_inputstream";
-                }
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line ;
-
-                while ( (line=bufferedReader.readLine())!=null ){
-                    buffer.append(line + '\n');
-                }
-
-                if (buffer.length() == 0) {
-                    return "null_inputstream";
-                }
-
-                String stringJSON = buffer.toString();
-                return stringJSON;
-            } catch (UnknownHostException | ConnectException e) {
-                error = "null_internet" ;
-                e.printStackTrace();
-            } catch (IOException e) {
-                error= "null_file";
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (final IOException e) {
-//                        Log.e(LOG_CAT, "ErrorClosingStream", e);
+    private void searchApp (String url){
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("MyApp", "searchApp:" + response.toString());
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray application = jsonObject.getJSONArray("applications");
+                    num = application.length();
+                    oppID = new String[num];
+                    AppData = new String[num][5];
+                    JSONObject apps;
+                    for(int i=0 ; i<num ; i++ ){
+                        apps = application.getJSONObject(i);
+                        oppID[i] = apps.getString("_opportunity_id");
+                        AppData[i][1] = apps.getString("_status");
                     }
+//                    SearchOrganisation searchOrganisation = new SearchOrganisation();
+//                    searchOrganisation.execute();
+                    for(int j=0; j<num ; j++ ) {
+                        Uri uri = Uri.parse(BASE).buildUpon().appendPath(INTERNSHIP)
+                                .appendPath(OPPORTUNITY).appendPath(oppID[j] + ".json").build();
+                        searchOrganisation(uri.toString(), j, num);
+                    }
+                } catch (JSONException e) {
+                    dialog.dismiss();
+                    textView.setText("No Applications");
+                    e.printStackTrace();
                 }
             }
-            return error;
-        }//doinbackground
-
-        @Override
-        protected void onPostExecute(String strJSON) {
-
-            if( strJSON=="null_inputstream" || strJSON=="null_file" ){
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("MyApp", "Error: " + error.getMessage());
                 dialog.dismiss();
-                Toast.makeText(getActivity(), "No Such User Id Found", Toast.LENGTH_SHORT).show();
-                return  ;
             }
-
-            if ( strJSON=="null_internet" ){
-                dialog.dismiss();
-                Toast.makeText(getActivity(), "No Internet Connectivity", Toast.LENGTH_SHORT).show();
-                return ;
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("acess-token", token);
+                return params;
             }
-//            Log.v("MyApp", getClass().toString() + "on app post : " + strJSON );
+        };
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
+    }
 
-            try {
-                JSONObject jsonObject = new JSONObject(strJSON);
-                JSONArray application = jsonObject.getJSONArray("applications");
-                num = application.length();
-                oppID = new String[num];
-                AppData = new String[num][5];
-                JSONObject apps;
-                for(int i=0 ; i<num ; i++ ){
-                    apps = application.getJSONObject(i);
-                    oppID[i] = apps.getString("_opportunity_id");
-                    AppData[i][1] = apps.getString("_status");
+    private void searchOrganisation (String url, final int position, final int size ){
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("MyApp", position+"  " + size+ "  "  + response.toString());
+                try {
+                    JSONObject main = new JSONObject(response);
+                    JSONObject opportunity = main.getJSONObject("opportunity");
+                    JSONObject organization = main.getJSONObject("organization");
+                    AppData[position][0] = organization.getString("_name");
+                    AppData[position][2] = opportunity.getString("_category");
+                    AppData[position][3] = opportunity.getString("_location");
+                    AppData[position][4] = opportunity.getString("_payment");
+                    cardsAppContent.addItem(new CardQualificationContent.DummyItem(AppData[position][0], AppData[position][2],
+                            AppData[position][3], AppData[position][4], AppData[position][1]));
+
+                    if(position==(size-1)){
+                        rvAdapter = new RVAdapter(cardsAppContent.ITEMS);
+                        recyclerView.setAdapter(rvAdapter);
+                        dialog.dismiss();
+                    }
+                } catch (JSONException exception ){
+                    Log.e("MyApp", exception.getMessage());
                 }
-                SearchOrganisation searchOrganisation = new SearchOrganisation();
-                searchOrganisation.execute();
-            } catch (JSONException e) {
-                dialog.dismiss();
-                textView.setText("No Applications");
-                e.printStackTrace();
             }
-
-        }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("MyApp", "Error: " + error.getMessage());
+                dialog.dismiss();
+            }
+        });
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
 
     public class SearchOrganisation extends AsyncTask<Void, Void, String > {
@@ -293,8 +302,6 @@ public class Application extends Fragment {
                 recyclerView.setAdapter(rvAdapter);
                 dialog.dismiss();
             }
-
-
         }
     }
 
@@ -342,8 +349,5 @@ public class Application extends Fragment {
             }
         }
     }
-    private void fill_cards_with_apps(){
-        SearchApps searchApps = new SearchApps();
-        searchApps.execute();
-    }
+
 }
