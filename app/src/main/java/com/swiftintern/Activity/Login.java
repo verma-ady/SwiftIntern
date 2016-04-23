@@ -3,14 +3,19 @@ package com.swiftintern.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -32,9 +37,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
+import com.swiftintern.Helper.AppController;
 import com.swiftintern.Helper.ConnectionDetector;
 import com.swiftintern.R;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,6 +55,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Login extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener  {
 
@@ -57,6 +66,17 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     private static final int RC_SIGN_IN = 9001;
     private GoogleApiClient mGoogleApiClient;
     private GoogleSignInOptions gso;
+
+    private final String VOLLEY_REQUEST = "string_req_view_intern";
+    private final String BASE = "http://swiftintern.com";
+    private final String FIND_INTERN = "Home.json";
+    private final String ORGANISATION = "organizations";
+    private final String PHOTOS = "photo";
+    private final String INTERN = "internship";
+    private final String OPPORTUNITY = "opportunity";
+    private final String APP = "app";
+    private final String APPLY = "apply";
+    private final String STUDENT = "student";
 
     LoginButton loginButton;
     CallbackManager callbackManager;
@@ -215,8 +235,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
             }
 
             editor.apply();
-            SearchUser searchUser = new SearchUser();
-            searchUser.execute();
+//            SearchUser searchUser = new SearchUser();
+//            searchUser.execute();
+
+            Uri uri = Uri.parse(BASE).buildUpon().appendPath(APP).appendPath(STUDENT + ".json").build();
+            loginUser(uri.toString());
 
         } else {
             // Signed out, show unauthenticated UI.
@@ -248,8 +271,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
                         editor.putString("email", object.getString("email"));
                         editor.apply();
 
-                        SearchUser searchUser = new SearchUser();
-                        searchUser.execute();
+//                        SearchUser searchUser = new SearchUser();
+//                        searchUser.execute();
+
+                        Uri uri = Uri.parse(BASE).buildUpon().appendPath(APP).appendPath(STUDENT + ".json").build();
+                        loginUser(uri.toString());
 
                     } catch (JSONException e) {
                         Log.v("MyApp", getClass().toString() +"LoginJSON");
@@ -272,6 +298,102 @@ public class Login extends AppCompatActivity implements View.OnClickListener, Go
     }//updatewithtoken
 
     //--------------------------------------------------------------------------------------- FaceBook Sign In
+
+    private void loginUser(String url){
+
+        StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("MyApp", "loginUser Response" + response);
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    if(jsonObject.getBoolean("success")) {
+                        JSONObject jsonObjectMeta = jsonObject.getJSONObject("meta");
+                        JSONObject jsonObjectUser = jsonObject.getJSONObject("user");
+                        editor.putInt("userID", jsonObjectUser.getInt("_id"));
+                        editor.putString("token", jsonObjectMeta.getString("_meta_value"));
+                        editor.apply();
+                        dialog.dismiss();
+                        Uri uri = Uri.parse(BASE).buildUpon().appendPath(STUDENT+".json").build();
+                        searchUser(uri.toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e( "MyApp", "loginUser Error" + error.getMessage() );
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("fname", sharedPreferences.getString("fname", null) + sharedPreferences.getString("lname", null) );
+                params.put("email", sharedPreferences.getString("email", null) );
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type", "application/x-www-form-urlencoded");
+                params.put("Content-Language", "en-US");
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
+    }
+
+    private void searchUser(String url) {
+        Log.d("MyApp", "searchUser URL" + url);
+        StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d("MyApp", "User Response" + response);
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray jsonArrayResume = jsonObject.getJSONArray("resumes");
+                    String resumeID =  jsonArrayResume.getJSONObject(0).getString("_id");
+                    editor.putString("resumeID", resumeID);
+                    editor.apply();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Intent intent = new Intent(Login.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e( "MyApp", "searchUser Error" + error.getMessage() );
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("email", sharedPreferences.getString("email", "") );
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type", "application/x-www-form-urlencoded");
+                params.put("Content-Language", "en-US");
+                params.put("acess-token", sharedPreferences.getString("token", null));
+                return params;
+            }
+        };
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
+    }
+
 
     public class SearchUser extends AsyncTask<Void, Void, String > {
 

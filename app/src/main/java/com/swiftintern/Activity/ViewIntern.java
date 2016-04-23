@@ -61,11 +61,8 @@ public class ViewIntern extends AppCompatActivity {
     String OrgID, OppID;
     private final String VOLLEY_REQUEST = "string_req_view_intern";
     private final String BASE = "http://swiftintern.com";
-    private final String FIND_INTERN = "Home.json";
     private final String ORGANISATION = "organizations";
     private final String PHOTOS = "photo";
-    private final String INTERN = "internship";
-    private final String OPPORTUNITY = "opportunity";
     private final String APP = "app";
     private final String APPLY = "apply";
 
@@ -157,7 +154,7 @@ public class ViewIntern extends AppCompatActivity {
                     //directly apply
 //                    ApplyForInternship applyForInternship = new ApplyForInternship();
 //                    applyForInternship.execute();
-                    Uri uri = Uri.parse(BASE).buildUpon().appendPath(APP).appendPath(APPLY).build();
+                    Uri uri = Uri.parse(BASE).buildUpon().appendPath(APP).appendPath(APPLY + ".json").build();
                     applyIntern(uri.toString());
                 }
             }
@@ -262,5 +259,5 @@ public class ViewIntern extends AppCompatActivity {
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
     }
-    
+
 }
