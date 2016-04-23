@@ -244,6 +244,11 @@ public class QualificationDetails extends Fragment {
         saveMyQual(uri.toString());
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
     private void saveMyQual(String url){
 
         StringRequest strReq = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
@@ -271,7 +276,7 @@ public class QualificationDetails extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e( "MyApp", "saveWork Response" + error.getMessage() );
+                Log.e( "MyApp", "saveQual Error" + error.getMessage() );
             }
         }){
             @Override
@@ -298,10 +303,5 @@ public class QualificationDetails extends Fragment {
 
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, VOLLEY_REQUEST);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 }
