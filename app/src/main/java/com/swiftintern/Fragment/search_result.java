@@ -302,9 +302,9 @@ public class search_result extends Fragment {
             holder.text.setText(dummy.ITEMS.get(position).id);
             holder.subtext.setText(dummy.ITEMS.get(position).content);
             holder.imageView.setImageBitmap(dummy.ITEMS.get(position).image);
-//            if(position>linearLayoutManager.findLastVisibleItemPosition()){//scroll down
-//                holder.itemView.setAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.bottum_up));
-//            }
+            if(position>linearLayoutManager.findLastVisibleItemPosition()){//scroll down
+                holder.itemView.setAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.bottum_up));
+            }
         }
 
         @Override

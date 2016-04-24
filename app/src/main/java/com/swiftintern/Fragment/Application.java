@@ -57,7 +57,7 @@ public class Application extends Fragment {
     TextView textView;
     String token;
     String oppID[], AppData[][];
-    int num;
+    int num, count ;
     ProgressDialog dialog;
     private final String VOLLEY_REQUEST = "string_req_view_intern";
     private final String BASE = "http://swiftintern.com";
@@ -127,6 +127,7 @@ public class Application extends Fragment {
                     }
 //                    SearchOrganisation searchOrganisation = new SearchOrganisation();
 //                    searchOrganisation.execute();
+                    count = 0;
                     for(int j=0; j<num ; j++ ) {
                         Uri uri = Uri.parse(BASE).buildUpon().appendPath(INTERNSHIP)
                                 .appendPath(OPPORTUNITY).appendPath(oppID[j] + ".json").build();
@@ -173,11 +174,12 @@ public class Application extends Fragment {
                     cardsAppContent.addItem(new CardQualificationContent.DummyItem(AppData[position][0], AppData[position][2],
                             AppData[position][3], AppData[position][4], AppData[position][1]));
 
-                    if(position==(size-1)){
+                    if(count==(size-1)){
                         rvAdapter = new RVAdapter(cardsAppContent.ITEMS);
                         recyclerView.setAdapter(rvAdapter);
                         dialog.dismiss();
                     }
+                    count++;
                 } catch (JSONException exception ){
                     Log.e("MyApp", exception.getMessage());
                 }

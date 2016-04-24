@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -268,6 +269,9 @@ public class Home extends Fragment {
             holder.text.setText(dummy.ITEMS.get(position).id);
             holder.subtext.setText(dummy.ITEMS.get(position).content);
             holder.imageView.setImageBitmap(dummy.ITEMS.get(position).image);
+            if(position>linearLayoutManager.findLastVisibleItemPosition()){//scroll down
+                holder.itemView.setAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.bottum_up));
+            }
         }
 
         @Override
